@@ -1,5 +1,6 @@
 package com.example.discopedia.discopedia.models;
 
+import com.example.discopedia.discopedia.users.Role;
 import jakarta.persistence.*;
 
 @Entity
