@@ -1,8 +1,11 @@
 package com.example.discopedia.discopedia.musicrecords;
 
+import com.example.discopedia.discopedia.reviews.Review;
 import com.example.discopedia.discopedia.users.User;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "music_records")
@@ -36,5 +39,6 @@ public class MusicRecord {
     @JoinColumn (name="user_id")
     private User user;
 
-
+    @OneToMany(mappedBy="musicRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews;
 }
