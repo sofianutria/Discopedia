@@ -1,5 +1,6 @@
 package com.example.discopedia.discopedia.musicrecords;
 
+import com.example.discopedia.discopedia.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,4 +31,10 @@ public class MusicRecord {
 
     @Column (name="image_url", nullable=false)
     private String imageUrl;
+
+    @ManyToOne
+    @JoinColumn (name="user_id")
+    private User user;
+
+
 }
