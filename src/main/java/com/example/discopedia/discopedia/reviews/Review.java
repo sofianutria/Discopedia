@@ -21,5 +21,7 @@ public class Review {
     @JoinColumn (name="user_id")
     private User user;
 
-
+    @ManyToOne
+    @JoinColumn (name="music_record_id")
+    private MusicRecord musicRecord;
 }
