@@ -22,4 +22,7 @@ public class MusicRecord {
     @Column(nullable = false)
     private String artist;
 
+    @Column(nullable=false)
+    private String musicalGenre;
+
 }
