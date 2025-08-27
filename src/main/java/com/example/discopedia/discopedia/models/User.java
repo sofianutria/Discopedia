@@ -28,4 +28,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade =CascadeType.ALL, orphanRemoval = true)
     private List<Record> records;
 
+    @OneToMany(mappedBy="user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews;
 }
