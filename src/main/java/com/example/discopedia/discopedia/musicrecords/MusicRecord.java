@@ -27,4 +27,7 @@ public class MusicRecord {
 
     @Column(nullable = false)
     private int year;
+
+    @Column (name="image_url", nullable=false)
+    private String imageUrl;
 }
