@@ -1,6 +1,5 @@
-package com.example.discopedia.discopedia.models;
+package com.example.discopedia.discopedia.users;
 
-import com.example.discopedia.discopedia.users.Role;
 import jakarta.persistence.*;
 
 import java.util.List;
