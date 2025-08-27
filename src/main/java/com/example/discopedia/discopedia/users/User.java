@@ -1,5 +1,6 @@
 package com.example.discopedia.discopedia.users;
 
+import com.example.discopedia.discopedia.reviews.Review;
 import jakarta.persistence.*;
 
 import java.util.List;
