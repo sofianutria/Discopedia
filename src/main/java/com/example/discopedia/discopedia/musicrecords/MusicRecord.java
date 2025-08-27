@@ -25,4 +25,6 @@ public class MusicRecord {
     @Column(nullable=false)
     private String musicalGenre;
 
+    @Column(nullable = false)
+    private int year;
 }
