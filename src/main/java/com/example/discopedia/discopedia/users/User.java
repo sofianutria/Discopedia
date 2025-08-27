@@ -1,5 +1,6 @@
 package com.example.discopedia.discopedia.users;
 
+import com.example.discopedia.discopedia.musicrecords.MusicRecord;
 import com.example.discopedia.discopedia.reviews.Review;
 import jakarta.persistence.*;
 
@@ -26,7 +27,7 @@ public class User {
     private Role role;
 
     @OneToMany(mappedBy = "user", cascade =CascadeType.ALL, orphanRemoval = true)
-    private List<Record> records;
+    private List<MusicRecord> musicRecords;
 
     @OneToMany(mappedBy="user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews;
