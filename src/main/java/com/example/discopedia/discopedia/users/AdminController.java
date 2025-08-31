@@ -20,4 +20,9 @@ public class AdminController {
         List<UserResponse> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserResponse> getUserById(Long id){
+        UserResponse user = userService.getUserByIdAdmin(id);
+        return ResponseEntity.ok(user);
+    }
 }
