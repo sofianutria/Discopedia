@@ -4,6 +4,7 @@ import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.users.dtos.UserMapper;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,13 @@ public class UserService {
                 .map(UserMapper::toDto)
                 .toList();
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse getUserByIdAdmin(Long id){
+        return getUserById(id);
+    }
+    @PreAuthorize("isAuthenticated()")
+    public UserResponse getOwnUser(Long id){return getUserById(id);}
 
     private UserResponse getUserById(Long id){
         User user = userRepository.findById(id)
