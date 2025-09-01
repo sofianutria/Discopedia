@@ -49,4 +49,19 @@ public class UserService {
         User savedUser=userRepository.save(user);
         return UserMapper.toDto(savedUser);
     }
+
+    @PreAuthorize(("isAuthenticated()"))
+    public String deleteOwnUser(Long id){return deleteUserById(id);}
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteUserByIdAdmin(Long id){return deleteUserById(id);}
+
+    private String deleteUserById(Long id) {
+        if(!userRepository.existsById(id)){
+            throw new EntityNotFoundException(User.class.getSimpleName(), "id", id.toString());
+        }
+        userRepository.deleteById(id);
+        return "User with id" + id + " deleted successfully";
+    }
+
 }
