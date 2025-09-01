@@ -2,7 +2,14 @@ package com.example.discopedia.discopedia.security;
 
 import com.example.discopedia.discopedia.security.jwt.JwtService;
 import com.example.discopedia.discopedia.users.UserService;
+import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
+import com.example.discopedia.discopedia.users.dtos.UserResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @EnableMethodSecurity
@@ -14,5 +21,11 @@ public class AuthController {
     public AuthController(UserService userService, JwtService jwtService) {
         this.userService = userService;
         this.jwtService = jwtService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> register (@RequestBody @Valid UserRegisterRequest userRegisterRequest){
+        UserResponse userResponse = userService.addUser(userRegisterRequest);
+        return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
     }
 }
