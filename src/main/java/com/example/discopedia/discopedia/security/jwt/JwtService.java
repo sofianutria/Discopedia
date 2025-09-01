@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
+import java.security.cert.X509CertSelector;
 import java.util.Date;
 
 @Service
@@ -28,6 +29,26 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis()+ jwtExpiration))
                 .signWith(getSignKey())
                 .compact();
+    }
+
+    public String extractUsername (String token){return extractAllClaims(token).getSubject();}
+
+    public boolean isValidToken(String token){
+        try{
+            extractAllClaims(token);
+            return true;
+        } catch (Exception exception){
+            return false;
+        }
+    }
+
+    private Claims extractAllClaims(String token){
+        return Jwts
+                .parser()
+                .verifyWith(getSignKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private Object getSignKey() {
