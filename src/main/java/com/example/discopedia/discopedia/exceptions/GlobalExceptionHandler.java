@@ -16,4 +16,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, status);
     }
 
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handlerEntityAlreadyExistsException (EntityAlreadyExistsException exception, HttpServletRequest req){
+        HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse errorResponse = new ErrorResponse(status, exception.getMessage(), req);
+        return new ResponseEntity<>(errorResponse, status);
+    }
+
 }
