@@ -1,6 +1,7 @@
 package com.example.discopedia.discopedia.users;
 
 import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
+import com.example.discopedia.discopedia.security.CustomUserDetail;
 import com.example.discopedia.discopedia.users.dtos.UserMapper;
 import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
@@ -48,7 +49,9 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
+        return userRepository.findByUsername(username)
+                .map(user-> new CustomUserDetail(user))
+                .orElseThrow(()-> new EntityNotFoundException("User", "username", username.toString()));
     }
 
     public UserResponse addUser(UserRegisterRequest request){
