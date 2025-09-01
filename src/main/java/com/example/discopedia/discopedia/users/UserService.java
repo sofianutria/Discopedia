@@ -1,19 +1,20 @@
 package com.example.discopedia.discopedia.users;
 
-import com.example.discopedia.discopedia.exceptions.EntityAlreadyExistsException;
 import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.users.dtos.UserMapper;
-import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
     public List<UserResponse> getAllUsers(){
@@ -34,34 +35,11 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("User", "id", id.toString()));
         return UserMapper.toDto(user);
+
     }
 
-    public UserResponse addUser(UserRegisterRequest request){return addUserByRole(request,Role.USER);}
-
-    private UserResponse addUserByRole(UserRegisterRequest request, Role role) {
-        if (userRepository.existsByUsername(request.username())){
-            throw new EntityAlreadyExistsException(User.class.getSimpleName(),"username", request.username());
-        }
-        if (userRepository.existsByEmail(request.email())){
-            throw new EntityAlreadyExistsException(User.class.getSimpleName(), "email", request.email());
-        }
-        User user = UserMapper.toEntity(request, role);
-        User savedUser=userRepository.save(user);
-        return UserMapper.toDto(savedUser);
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return null;
     }
-
-    @PreAuthorize(("isAuthenticated()"))
-    public String deleteOwnUser(Long id){return deleteUserById(id);}
-
-    @PreAuthorize("hasRole('ADMIN')")
-    public String deleteUserByIdAdmin(Long id){return deleteUserById(id);}
-
-    private String deleteUserById(Long id) {
-        if(!userRepository.existsById(id)){
-            throw new EntityNotFoundException(User.class.getSimpleName(), "id", id.toString());
-        }
-        userRepository.deleteById(id);
-        return "User with id" + id + " deleted successfully";
-    }
-
 }
