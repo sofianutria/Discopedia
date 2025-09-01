@@ -2,6 +2,7 @@ package com.example.discopedia.discopedia.users;
 
 import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.users.dtos.UserMapper;
+import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +33,10 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("User", "id", id.toString()));
         return UserMapper.toDto(user);
+    }
 
+    public UserResponse addUser(UserRegisterRequest request){return addUserByRole(request,Role.USER);}
+
+    private UserResponse addUserByRole(UserRegisterRequest request, Role role) {
     }
 }
