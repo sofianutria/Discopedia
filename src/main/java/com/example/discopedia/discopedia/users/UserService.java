@@ -5,13 +5,16 @@ import com.example.discopedia.discopedia.users.dtos.UserMapper;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
     public List<UserResponse> getAllUsers(){
@@ -33,5 +36,10 @@ public class UserService {
                 .orElseThrow(()-> new EntityNotFoundException("User", "id", id.toString()));
         return UserMapper.toDto(user);
 
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return null;
     }
 }
