@@ -1,5 +1,6 @@
 package com.example.discopedia.discopedia.users;
 
+import com.example.discopedia.discopedia.exceptions.EntityAlreadyExistsException;
 import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.security.CustomUserDetail;
 import com.example.discopedia.discopedia.users.dtos.UserMapper;
@@ -64,5 +65,14 @@ public class UserService implements UserDetailsService {
     }
 
     private UserResponse addUserByRole(UserRegisterRequest request, Role role) {
+        if (userRepository.existsByUsername(request.username())){
+            throw new EntityAlreadyExistsException(User.class.getSimpleName(),"username", request.username());
+        }
+        if (userRepository.existsByEmail(request.email())){
+            throw new EntityAlreadyExistsException(User.class.getSimpleName(), "email", request.email());
+        }
+        User user = UserMapper.toEntity(request, role);
+        User savedUser=userRepository.save(user);
+        return UserMapper.toDto(savedUser);
     }
 }
