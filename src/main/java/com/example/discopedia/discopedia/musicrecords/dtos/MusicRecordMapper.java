@@ -20,4 +20,7 @@ public class MusicRecordMapper {
         UserResponse userDto = UserMapper.toDto(musicRecord.getUser());
         return new MusicRecordResponse(musicRecord.getId(), musicRecord.getTitle(), musicRecord.getArtist(), musicRecord.getMusicalGenre(), musicRecord.getYear(), musicRecord.getSetlist(), musicRecord.getImageUrl(), userDto);
     }
+    public static MusicRecordResponseShort toDtoShort (MusicRecord musicRecord){
+        return new MusicRecordResponseShort(musicRecord.getTitle(), musicRecord.getArtist(), musicRecord.getMusicalGenre());
+    }
 }
