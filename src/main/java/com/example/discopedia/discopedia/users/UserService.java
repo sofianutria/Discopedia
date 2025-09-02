@@ -98,4 +98,16 @@ public class UserService implements UserDetailsService {
         User updatedUser = userRepository.save(existingUser);
         return UserMapper.toDto(updatedUser);
     }
+    @PreAuthorize("IsAuthenticated()")
+    public String deleteOwnUser(Long id){return deleteUserById(id)}
+    @PreAuthorize ("hasRole('ADMIN)")
+    public String deleteUserByIdAdmin(Long id){return deleteUserById()}
+
+    private String deleteUserById(Long id) {
+        if(!userRepository.existsById(id)){
+            throw new EntityNotFoundException(User.class.getSimpleName(),"id", id.toString());
+        }
+        userRepository.deleteById(id);
+        return "User with id " + id + " deleted successfully";
+    }
 }
