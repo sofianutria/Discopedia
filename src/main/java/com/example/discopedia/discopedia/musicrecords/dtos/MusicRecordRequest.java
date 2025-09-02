@@ -1,4 +1,9 @@
 package com.example.discopedia.discopedia.musicrecords.dtos;
 
-public record MusicRecordRequest() {
+import jakarta.validation.constraints.NotBlank;
+
+public record MusicRecordRequest(
+        @NotBlank(message= "Title is required")
+        String title
+) {
 }
