@@ -2,6 +2,7 @@ package com.example.discopedia.discopedia.musicrecords.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 
 public record MusicRecordRequest(
         @NotBlank(message= "Title is required")
@@ -17,6 +18,9 @@ public record MusicRecordRequest(
         Integer year,
 
         @NotBlank(message= "Setlist is required")
-        String setlist
+        String setlist,
+
+        @Pattern(message = "Invalid content type", regexp = "^(https?://.*\\.(png|jpg|jpeg|gif|svg))$")
+        String image
 ) {
 }
