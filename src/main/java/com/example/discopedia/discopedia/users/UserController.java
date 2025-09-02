@@ -39,4 +39,11 @@ public class UserController {
         UserResponse updatedUser = userService.updateOwnUser(userDetail.getId(), userRegisterRequest);
         return ResponseEntity.ok(updatedUser);
     }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<String> deleteMyUser(
+            @AuthenticationPrincipal CustomUserDetail userDetail){
+        String message = userService.deleteOwnUser(userDetail.getId());
+        return ResponseEntity.ok(message);
+    }
 }
