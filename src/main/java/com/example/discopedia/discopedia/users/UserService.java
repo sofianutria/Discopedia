@@ -71,7 +71,9 @@ public class UserService implements UserDetailsService {
         if (userRepository.existsByEmail(request.email())){
             throw new EntityAlreadyExistsException(User.class.getSimpleName(), "email", request.email());
         }
+        String encodedPassword = passwordEncoder.encode(request.password());
         User user = UserMapper.toEntity(request, role);
+        user.setPassword(encodedPassword);
         User savedUser=userRepository.save(user);
         return UserMapper.toDto(savedUser);
     }
