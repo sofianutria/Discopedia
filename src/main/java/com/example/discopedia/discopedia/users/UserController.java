@@ -3,13 +3,13 @@ package com.example.discopedia.discopedia.users;
 import com.example.discopedia.discopedia.musicrecords.MusicRecordService;
 import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordResponse;
 import com.example.discopedia.discopedia.security.CustomUserDetail;
+import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,5 +30,13 @@ public class UserController {
     public ResponseEntity <List<MusicRecordResponse>> getMyCds(@AuthenticationPrincipal CustomUserDetail userDetail){
         List<MusicRecordResponse> list = musicRecordService.getCdsByUserUsername(userDetail.getUser().getUsername());
         return ResponseEntity.ok(list);
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateMyUser(
+            @AuthenticationPrincipal CustomUserDetail userDetail,
+            @RequestBody @Valid UserRegisterRequest userRegisterRequest){
+        UserResponse updatedUser = userService.updateOwnUser(userDetail.getId(), userRegisterRequest);
+        return ResponseEntity.ok(updatedUser);
     }
 }
