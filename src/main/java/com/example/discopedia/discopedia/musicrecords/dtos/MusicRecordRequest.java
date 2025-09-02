@@ -14,6 +14,9 @@ public record MusicRecordRequest(
         String musicalGenre,
 
         @NotEmpty(message= "Year is required")
-        Integer year
+        Integer year,
+
+        @NotBlank(message= "Setlist is required")
+        String setlist
 ) {
 }
