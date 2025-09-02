@@ -7,6 +7,9 @@ public record MusicRecordRequest(
         String title,
 
         @NotBlank(message= "Artist is required")
-        String artist
+        String artist,
+
+        @NotBlank(message= "Musical genre is required")
+        String musicalGenre
 ) {
 }
