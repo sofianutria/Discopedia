@@ -99,9 +99,9 @@ public class UserService implements UserDetailsService {
         return UserMapper.toDto(updatedUser);
     }
     @PreAuthorize("IsAuthenticated()")
-    public String deleteOwnUser(Long id){return deleteUserById(id)}
+    public String deleteOwnUser(Long id){return deleteUserById(id);}
     @PreAuthorize ("hasRole('ADMIN)")
-    public String deleteUserByIdAdmin(Long id){return deleteUserById()}
+    public String deleteUserByIdAdmin(Long id){return deleteUserById(id);}
 
     private String deleteUserById(Long id) {
         if(!userRepository.existsById(id)){
