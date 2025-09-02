@@ -3,7 +3,7 @@ spring:
     ansi:
       enabled: ALWAYS
   application:
-    name: happy-travel
+    name: discopedia
   config:
     import: optional:file:.env[.properties]
 
@@ -33,3 +33,7 @@ spring:
   # Server Configuration
 server:
   port: ${SERVER_PORT}
+
+  # Admin properties
+  admin:
+    email: admin@discopedia.com
