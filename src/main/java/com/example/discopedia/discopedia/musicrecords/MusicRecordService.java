@@ -13,7 +13,10 @@ import java.util.List;
 public class MusicRecordService {
     private final MusicRecordRepository musicRecordRepository;
     private final UserService userService;
+
     public List<MusicRecordResponse> getCdsByUserUsername(String username) {
-        User user = userService.get
+        User user = userService.getByUsername(username);
+        List<MusicRecord> listToDto = musicRecordRepository.findByUser(user);
+        return listToDto(listToDto);
     }
 }
