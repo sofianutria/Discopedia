@@ -1,4 +1,4 @@
 package com.example.discopedia.discopedia.musicrecords.dtos;
 
-public interface MusicRecordMapper {
+public class MusicRecordMapper {
 }
