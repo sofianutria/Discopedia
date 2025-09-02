@@ -77,4 +77,25 @@ public class UserService implements UserDetailsService {
         User savedUser=userRepository.save(user);
         return UserMapper.toDto(savedUser);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    public UserResponse updateOwnUser(Long id, UserRegisterRequest request){
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException(User.class.getSimpleName(), "id", id.toString()));
+        if(!existingUser.getUsername().equals(request.username())){
+            if(userRepository.findByUsername(request.username()).isPresent()){
+                throw new EntityAlreadyExistsException(User.class.getSimpleName(),"username", request.username());
+            }
+        }
+        if(!existingUser.getEmail().equals(request.email())){
+            if(userRepository.findByEmail(request.email()).isPresent()){
+                throw new EntityAlreadyExistsException(User.class.getSimpleName(),"email",request.email());
+            }
+        }
+        existingUser.setUsername(request.username());
+        existingUser.setEmail(request.email());
+        existingUser.setPassword(passwordEncoder.encode(request.password()));
+        User updatedUser = userRepository.save(existingUser);
+        return UserMapper.toDto(updatedUser);
+    }
 }
