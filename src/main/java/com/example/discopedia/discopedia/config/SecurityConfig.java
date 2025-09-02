@@ -18,17 +18,22 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
     private final UserService userService;
-    @Value ("${port.front}")
-    private String frontPort;
     public SecurityConfig(UserService userService){this.userService=userService;}
 
     @Bean
@@ -40,7 +45,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthFilter jwtAuthFilter (JwtService jwtService){return new JwtAuthFilter(jwtService, userService)}
+    public JwtAuthFilter jwtAuthFilter (JwtService jwtService){return new JwtAuthFilter(jwtService, userService);}
 
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint(){
@@ -54,14 +59,24 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception{
         http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(authenticationEntryPoint()))
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers(HttpMethod.GET, "/cd").permitAll()
+                        .requestMatchers( "/register", "/login").permitAll()
+                        .requestMatchers("/users", "/users/**").authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/cd/auth").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cd", "/cd/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/cd").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/cd/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/cd/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
