@@ -1,5 +1,7 @@
 package com.example.discopedia.discopedia.config;
 
+import com.example.discopedia.discopedia.security.jwt.JwtAuthFilter;
+import com.example.discopedia.discopedia.security.jwt.JwtService;
 import com.example.discopedia.discopedia.users.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -31,6 +33,9 @@ public class SecurityConfig {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }
+
+    @Bean
+    public JwtAuthFilter jwtAuthFilter (JwtService jwtService){return new JwtAuthFilter(jwtService, userService)}
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
