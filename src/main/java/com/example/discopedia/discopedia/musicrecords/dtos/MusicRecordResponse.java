@@ -1,5 +1,7 @@
 package com.example.discopedia.discopedia.musicrecords.dtos;
 
+import com.example.discopedia.discopedia.users.dtos.UserResponse;
+
 public record MusicRecordResponse(
         Long id,
         String title,
@@ -8,6 +10,6 @@ public record MusicRecordResponse(
         Integer year,
         String setlist,
         String imageUrl,
-        String user
+        UserResponse user
 ) {
 }
