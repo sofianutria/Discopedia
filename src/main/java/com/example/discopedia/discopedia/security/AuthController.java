@@ -1,7 +1,9 @@
 package com.example.discopedia.discopedia.security;
 
+import com.example.discopedia.discopedia.security.jwt.JwtResponse;
 import com.example.discopedia.discopedia.security.jwt.JwtService;
 import com.example.discopedia.discopedia.users.UserService;
+import com.example.discopedia.discopedia.users.dtos.UserLoginRequest;
 import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
 import jakarta.validation.Valid;
@@ -35,5 +37,11 @@ public class AuthController {
     public ResponseEntity<UserResponse> adminRegister(@RequestBody @Valid UserRegisterRequest userRegisterRequest){
         UserResponse userResponse = userService.addAdmin(userRegisterRequest);
         return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<JwtResponse> login (@RequestBody @Valid UserLoginRequest userLoginRequest){
+        JwtResponse jwtResponse = jwtService.loginAuthentication(userLoginRequest);
+        return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
     }
 }
