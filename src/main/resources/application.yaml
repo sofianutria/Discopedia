@@ -18,7 +18,7 @@ spring:
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -35,5 +35,7 @@ server:
   port: ${SERVER_PORT}
 
   # Admin properties
-  admin:
-    email: admin@discopedia.com
+admin:
+  email: ${ADMIN_EMAIL:admin@example.com}
+  username: ${ADMIN_USERNAME:admin}
+  password: ${ADMIN_PASSWORD:password1234}
