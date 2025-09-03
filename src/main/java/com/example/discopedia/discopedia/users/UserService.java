@@ -71,8 +71,43 @@ public class UserService implements UserDetailsService {
         if (userRepository.existsByEmail(request.email())){
             throw new EntityAlreadyExistsException(User.class.getSimpleName(), "email", request.email());
         }
+        String encodedPassword = passwordEncoder.encode(request.password());
         User user = UserMapper.toEntity(request, role);
+        user.setPassword(encodedPassword);
         User savedUser=userRepository.save(user);
         return UserMapper.toDto(savedUser);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public UserResponse updateOwnUser(Long id, UserRegisterRequest request){
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException(User.class.getSimpleName(), "id", id.toString()));
+        if(!existingUser.getUsername().equals(request.username())){
+            if(userRepository.findByUsername(request.username()).isPresent()){
+                throw new EntityAlreadyExistsException(User.class.getSimpleName(),"username", request.username());
+            }
+        }
+        if(!existingUser.getEmail().equals(request.email())){
+            if(userRepository.findByEmail(request.email()).isPresent()){
+                throw new EntityAlreadyExistsException(User.class.getSimpleName(),"email",request.email());
+            }
+        }
+        existingUser.setUsername(request.username());
+        existingUser.setEmail(request.email());
+        existingUser.setPassword(passwordEncoder.encode(request.password()));
+        User updatedUser = userRepository.save(existingUser);
+        return UserMapper.toDto(updatedUser);
+    }
+    @PreAuthorize("isAuthenticated()")
+    public String deleteOwnUser(Long id){return deleteUserById(id);}
+    @PreAuthorize ("hasRole('ADMIN')")
+    public String deleteUserByIdAdmin(Long id){return deleteUserById(id);}
+
+    private String deleteUserById(Long id) {
+        if(!userRepository.existsById(id)){
+            throw new EntityNotFoundException(User.class.getSimpleName(),"id", id.toString());
+        }
+        userRepository.deleteById(id);
+        return "User with id " + id + " deleted successfully";
     }
 }

@@ -32,6 +32,9 @@ public class MusicRecord {
     @Column(nullable = false)
     private int year;
 
+    @Column
+    private String setlist;
+
     @Column (name="image_url", nullable=false)
     private String imageUrl;
 
