@@ -140,5 +140,16 @@ public class UserServiceTest {
             assertEquals("User with username \"" + userRegisterRequest.username() + "\" already exists", exception.getMessage());
             verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
         }
+
+        @Test
+        void addUser_whenEmailAlreadyExists_throwsException() {
+            when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(false);
+            when(userRepository.existsByEmail(userRegisterRequest.email())).thenReturn(true);
+            EntityAlreadyExistsException exception = assertThrows(EntityAlreadyExistsException.class,
+                    () -> userService.addUser(userRegisterRequest));
+            assertEquals("User with email \"" + userRegisterRequest.email() + "\" already exists", exception.getMessage());
+            verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
+            verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
+        }
     }
 }
