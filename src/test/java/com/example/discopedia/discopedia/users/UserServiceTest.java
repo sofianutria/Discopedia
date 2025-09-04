@@ -163,5 +163,23 @@ public class UserServiceTest {
             verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
             verify(userRepository, times(1)).save(any(User.class));
         }
+
+        @Nested
+        @DisplayName("PUT users")
+        class UpdateUserTests{
+            @Test
+            void updateUser_whenUserRequestIsValid_returnsUserResponse(){
+                Long id = 1L;
+                when(userRepository.findById(id)).thenReturn(Optional.of(user));
+                when(userRepository.findByUsername(userRegisterRequest.username())).thenReturn(Optional.of(user)); // username igual
+                when(passwordEncoder.encode(userRegisterRequest.password())).thenReturn("encoded-password");
+                when(userRepository.save(any(User.class))).thenReturn(user);
+                UserResponse result = userService.updateOwnUser(id, userRegisterRequest);
+                assertEquals(userResponse, result);
+                verify(userRepository, times(1)).findById(id);
+                verify(userRepository, times(1)).findByUsername(userRegisterRequest.username());
+                verify(userRepository, times(1)).save(any(User.class));
+            }
+        }
     }
 }
