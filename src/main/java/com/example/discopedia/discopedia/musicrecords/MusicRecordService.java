@@ -8,6 +8,7 @@ import com.example.discopedia.discopedia.users.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,6 +27,21 @@ public class MusicRecordService {
         List<MusicRecord> musicRecords = musicRecordRepository.findAll();
         musicRecords.sort(Comparator.comparing(musicRecord -> musicRecord.getUser() != null && username.equals(musicRecord.getUser().getUsername()) ? 0 : 1));
         return listToDtoShort(musicRecords);
+    }
+
+    public List<MusicRecordResponse> getFilteredMusicRecord(String title, String artist) {
+        List<MusicRecord> filtered = new ArrayList<>();
+        boolean titleIsEmpty = title == null || title.isBlank();
+        boolean artistIsEmpty = artist == null || artist.isBlank();
+
+        if (!titleIsEmpty && !artistIsEmpty) {
+            filtered = musicRecordRepository.findByTitleContainingIgnoreCaseAndArtistContainingIgnoreCase(title, artist);
+        } else if (!titleIsEmpty) {
+            filtered = musicRecordRepository.findByTitleContainingIgnoreCase(title);
+        } else if (!artistIsEmpty) {
+            filtered = musicRecordRepository.findByArtistContainingIgnoreCase(artist);
+        }
+        return listToDto(filtered);
     }
 
     private List<MusicRecordResponseShort> listToDtoShort(List<MusicRecord> musicRecords) {
