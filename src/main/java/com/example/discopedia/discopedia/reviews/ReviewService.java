@@ -8,8 +8,10 @@ import com.example.discopedia.discopedia.musicrecords.MusicRecordService;
 import com.example.discopedia.discopedia.reviews.dtos.ReviewMapper;
 import com.example.discopedia.discopedia.reviews.dtos.ReviewRequest;
 import com.example.discopedia.discopedia.reviews.dtos.ReviewResponse;
+import com.example.discopedia.discopedia.users.Role;
 import com.example.discopedia.discopedia.users.User;
 import com.example.discopedia.discopedia.users.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -50,5 +52,28 @@ public class ReviewService {
         Review review = ReviewMapper.toEntity(request, user, musicRecord);
         reviewRepository.save(review);
         return ReviewMapper.toDto(review);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public ReviewResponse updateReview(Long id, ReviewRequest request, User user) {
+        Review review = findReviewOrThrow(id);
+        assertUserIsOwner(review, user);
+
+        review.setQualification(request.qualification());
+        review.setReviewDescription(request.reviewDescription());
+
+        Review updated = reviewRepository.save(review);
+        return ReviewMapper.toDto(updated);
+    }
+
+    public void assertUserIsOwner(Review review, User user) {
+        if (!review.getUser().getId().equals(user.getId()) ) {
+            throw new AccessDeniedException("You are not authorized to modify or delete this music record.");
+        }
+    }
+
+    private Review findReviewOrThrow(Long id) {
+        return reviewRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Review", "id", id.toString()));
     }
 }
