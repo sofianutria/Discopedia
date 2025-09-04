@@ -4,6 +4,7 @@ import com.example.discopedia.discopedia.reviews.Review;
 import com.example.discopedia.discopedia.users.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Length;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class MusicRecord {
     @Column(nullable = false)
     private int year;
 
-    @Column
+    @Column (length=2000)
     private String setlist;
 
     @Column (name="image_url", nullable=false)

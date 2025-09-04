@@ -14,6 +14,7 @@ public class MusicRecordMapper {
                 .year(dto.year())
                 .setlist(dto.setlist())
                 .imageUrl(dto.image())
+                .user(user)
                 .build();
     }
     public static MusicRecordResponse toDto(MusicRecord musicRecord){
