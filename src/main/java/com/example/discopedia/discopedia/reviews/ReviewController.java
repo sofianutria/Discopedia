@@ -42,4 +42,14 @@ public class ReviewController {
         ReviewResponse updated = reviewService.updateReview(reviewId, request, customUserDetail.getUser());
         return ResponseEntity.ok(updated);
     }
+
+    @DeleteMapping("/{reviewId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> deleteReview(
+            @AuthenticationPrincipal CustomUserDetail customUserDetail,
+            @PathVariable Long reviewId
+    ) {
+        String message = reviewService.deleteReview(reviewId, customUserDetail.getUser());
+        return ResponseEntity.ok(message);
+    }
 }
