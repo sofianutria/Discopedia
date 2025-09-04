@@ -50,9 +50,10 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-                .map(user-> new CustomUserDetail(user))
-                .orElseThrow(()-> new EntityNotFoundException("User", "username", username.toString()));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(()-> new UsernameNotFoundException ("User not found"));
+        return new CustomUserDetail(user);
+
     }
 
     public UserResponse addUser(UserRegisterRequest request){
