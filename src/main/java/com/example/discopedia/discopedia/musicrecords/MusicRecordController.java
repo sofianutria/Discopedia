@@ -65,4 +65,13 @@ public class MusicRecordController {
         MusicRecordResponse updated = musicRecordService.updateMusicRecord(destinationId, request, customUserDetail.getUser());
         return ResponseEntity.ok(updated);
     }
+
+    @DeleteMapping("/{musicRecordId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> deleteMusicRecord(
+            @AuthenticationPrincipal CustomUserDetail customUserDetail,
+            @PathVariable Long musicRecordId) {
+        String message = musicRecordService.deleteMusicRecord(musicRecordId, customUserDetail.getUser());
+        return ResponseEntity.ok(message);
+    }
 }
