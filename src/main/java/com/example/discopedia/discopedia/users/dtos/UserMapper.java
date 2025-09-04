@@ -1,5 +1,7 @@
 package com.example.discopedia.discopedia.users.dtos;
 
+import com.example.discopedia.discopedia.musicrecords.MusicRecord;
+import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordResponseShort;
 import com.example.discopedia.discopedia.users.Role;
 import com.example.discopedia.discopedia.users.User;
 
@@ -21,5 +23,8 @@ public class UserMapper {
                 user.getEmail(),
                 user.getRole().name()
         );
+    }
+    public static UserResponseShort toDtoShort (User user){
+        return new UserResponseShort(user.getId(), user.getUsername());
     }
 }
