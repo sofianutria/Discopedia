@@ -55,4 +55,14 @@ public class MusicRecordController {
         MusicRecordResponse created = musicRecordService.addMusicRecord(request, customUserDetail.getUser());
         return ResponseEntity.ok(created);
     }
+
+    @PutMapping("/{musicRecordId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MusicRecordResponse> updateMusicRecord(
+            @AuthenticationPrincipal CustomUserDetail customUserDetail,
+            @PathVariable Long destinationId,
+            @RequestBody @Valid MusicRecordRequest request) {
+        MusicRecordResponse updated = musicRecordService.updateMusicRecord(destinationId, request, customUserDetail.getUser());
+        return ResponseEntity.ok(updated);
+    }
 }
