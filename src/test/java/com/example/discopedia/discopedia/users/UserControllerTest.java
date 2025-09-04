@@ -18,6 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
+import java.util.List;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -90,5 +92,20 @@ public class UserControllerTest {
             verify(userService, times(1)).getOwnUser(customUserDetail.getId());
         }
 
+        @Test
+        void getMyCds_whenAuthenticated_returnsMusicRecordList() throws Exception {
+            when(musicRecordService.getMusicRecordsByUserUsername(customUserDetail.getUser().getUsername()))
+                    .thenReturn(List.of(musicRecordResponse));
+            mockMvc.perform(get("/users/me/cd")
+                            .principal(() -> customUserDetail.getUsername()))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$[0].id").value(musicRecordResponse.id()))
+                    .andExpect(jsonPath("$[0].title").value(musicRecordResponse.title()))
+                    .andExpect(jsonPath("$[0].artist").value(musicRecordResponse.artist()))
+                    .andExpect(jsonPath("$[0].genre").value(musicRecordResponse.musicalGenre()));
+            verify(musicRecordService, times(1))
+                    .getMusicRecordsByUserUsername(customUserDetail.getUser().getUsername());
+        }
     }
 }
