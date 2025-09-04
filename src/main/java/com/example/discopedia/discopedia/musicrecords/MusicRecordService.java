@@ -49,21 +49,17 @@ public class MusicRecordService {
         return listToDto(filtered);
     }
 
+    public List<MusicRecordResponse> getCdsByUserUsername(String username) {
+        User user = userService.getByUsername(username);
+        List<MusicRecord> listToDto = musicRecordRepository.findByUser(user);
+        return listToDto (listToDto);
+    }
+
     @PreAuthorize("isAuthenticated()")
     public MusicRecordResponse addMusicRecord(MusicRecordRequest musicRecordRequest, User user){
         MusicRecord musicRecord = MusicRecordMapper.toEntity(musicRecordRequest, user);
         MusicRecord saveMusicRecord = musicRecordRepository.save(musicRecord);
         return MusicRecordMapper.toDto(saveMusicRecord);
-    }
-
-    private MusicRecord findMusicRecordOrThrow(Long id) {
-        return musicRecordRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Music record", "id", id.toString()));
-    }
-    public void assertUserIsOwner(MusicRecord musicRecord, User user) {
-        if (!musicRecord.getUser().getId().equals(user.getId()) ) {
-            throw new AccessDeniedException("You are not authorized to modify or delete this music record.");
-        }
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -81,12 +77,6 @@ public class MusicRecordService {
         return MusicRecordMapper.toDto(updated);
     }
 
-    public void assertUserIsOwnerOrAdmin(MusicRecord musicRecord, User user) {
-        if (!musicRecord.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
-            throw new AccessDeniedException("You are not authorized to modify or delete this music record.");
-        }
-    }
-
     @PreAuthorize("isAuthenticated()")
     public String deleteMusicRecord(Long id, User user) {
         MusicRecord musicRecord = findMusicRecordOrThrow(id);
@@ -95,16 +85,26 @@ public class MusicRecordService {
         return "Music record with id " + id + " deleted successfully";
     }
 
+    private MusicRecord findMusicRecordOrThrow(Long id) {
+        return musicRecordRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Music record", "id", id.toString()));
+    }
+    public void assertUserIsOwner(MusicRecord musicRecord, User user) {
+        if (!musicRecord.getUser().getId().equals(user.getId()) ) {
+            throw new AccessDeniedException("You are not authorized to modify or delete this music record.");
+        }
+    }
+
+    public void assertUserIsOwnerOrAdmin(MusicRecord musicRecord, User user) {
+        if (!musicRecord.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("You are not authorized to modify or delete this music record.");
+        }
+    }
+
     private List<MusicRecordResponseShort> listToDtoShort(List<MusicRecord> musicRecords) {
         return musicRecords.stream()
                 .map(MusicRecordMapper::toDtoShort)
                 .toList();
-    }
-
-    public List<MusicRecordResponse> getCdsByUserUsername(String username) {
-        User user = userService.getByUsername(username);
-        List<MusicRecord> listToDto = musicRecordRepository.findByUser(user);
-        return listToDto (listToDto);
     }
 
     private List<MusicRecordResponse> listToDto(List<MusicRecord> musicRecords) {
