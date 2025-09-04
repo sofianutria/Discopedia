@@ -1,5 +1,6 @@
 package com.example.discopedia.discopedia.users;
 
+import com.example.discopedia.discopedia.exceptions.EntityAlreadyExistsException;
 import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.musicrecords.MusicRecord;
 import com.example.discopedia.discopedia.reviews.Review;
@@ -130,6 +131,14 @@ public class UserServiceTest {
             verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
             verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
             verify(userRepository, times(1)).save(any(User.class));
+        }
+        @Test
+        void addUser_whenUsernameAlreadyExists_throwsException() {
+            when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(true);
+            EntityAlreadyExistsException exception = assertThrows(EntityAlreadyExistsException.class,
+                    () -> userService.addUser(userRegisterRequest));
+            assertEquals("User with username \"" + userRegisterRequest.username() + "\" already exists", exception.getMessage());
+            verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
         }
     }
 }
