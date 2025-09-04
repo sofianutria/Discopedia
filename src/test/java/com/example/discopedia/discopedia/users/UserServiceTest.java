@@ -105,5 +105,14 @@ public class UserServiceTest {
             assertEquals(user, result);
             verify(userRepository, times(1)).findByUsername(username);
         }
+        @Test
+        void getByUsername_whenUserDoesNotExist_throwsException() {
+            String username = "Lara";
+            when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                    () -> userService.getByUsername(username));
+            assertEquals("User with username \"" + username + "\" not found", exception.getMessage());
+            verify(userRepository, times(1)).findByUsername(username);
+        }
     }
 }
