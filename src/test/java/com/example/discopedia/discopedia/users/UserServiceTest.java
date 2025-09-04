@@ -88,5 +88,14 @@ public class UserServiceTest {
             assertEquals(userResponse, result);
             verify(userRepository, times(1)).findById(id);
         }
+        @Test
+        void getOwnUser_whenUserDoesNotExist_throwsException() {
+            Long id = 1L;
+            when(userRepository.findById(id)).thenReturn(Optional.empty());
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                    () -> userService.getOwnUser(id));
+            assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
+            verify(userRepository, times(1)).findById(id);
+        }
     }
 }
