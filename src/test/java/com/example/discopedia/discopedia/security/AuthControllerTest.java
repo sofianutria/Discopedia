@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -151,6 +152,81 @@ public class AuthControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidLogin)))
                     .andExpect(status().isUnauthorized());
+        }
+    }
+    @Nested
+    @DisplayName("REGISTER ADMIN-POST /admin/register")
+    class RegisterAdminTests {
+
+        @Test
+        @DisplayName("Should register an admin and return 201 Created")
+        void testRegisterAdmin() throws Exception {
+            UserRegisterRequest request = new UserRegisterRequest("john", "john@gmail.com", "pasL09?sword");
+            UserResponse userResponse = new UserResponse(1L, "john", "john@gmail.com", "ROLE_ADMIN");
+            given(userService.addAdmin(request)).willReturn(userResponse);
+            String expectedJson = asJsonString(userResponse);
+            mockMvc.perform(post("/admin/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                            .with(user(userAdmin)))
+                    .andExpect(status().isCreated())
+                    .andExpect(content().json(expectedJson));
+            verify(userService, times(1)).addAdmin(request);
+        }
+
+        @Test
+        @DisplayName("Should not register an admin and return 401 Unauthorized")
+        void testRegisterAdminNoAuthenticated() throws Exception {
+            UserRegisterRequest request = new UserRegisterRequest("john", "john@gmail.com", "pasL09?sword");
+            mockMvc.perform(post("/admin/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isUnauthorized());
+
+        }
+
+        @Test
+        @DisplayName("Should not register an admin and return 403 Forbidden")
+        void testRegisterAdminNoPermission() throws Exception {
+            UserRegisterRequest request = new UserRegisterRequest("john", "john@gmail.com", "pasL09?sword");
+            mockMvc.perform(post("/admin/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                            .with(user(userUser)))
+                    .andExpect(status().isForbidden());
+
+        }
+
+        @Test
+        @DisplayName("Should return 400 Bad Request when password is missing during registration")
+        void testRegisterWithMissingPassword () throws Exception {
+            UserRegisterRequest invalidRequest = new UserRegisterRequest("john", "john@gmail.com", "");
+            mockMvc.perform(post("/admin/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(invalidRequest))
+                            .with(user(userAdmin)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Should return 400 Bad Request when username is missing during registration")
+        void testRegisterWithMissingUsername() throws Exception {
+            UserRegisterRequest invalidRequest = new UserRegisterRequest("", "john@gmail.com", "password");
+            mockMvc.perform(post("/admin/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(invalidRequest))
+                            .with(user(userAdmin)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Should return 400 Bad Request when register request body is empty")
+        void testRegisterWithEmptyBody () throws Exception {
+            mockMvc.perform(post("/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}")
+                            .with(user(userAdmin)))
+                    .andExpect(status().isBadRequest());
         }
     }
 }
