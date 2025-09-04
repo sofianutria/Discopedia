@@ -5,6 +5,7 @@ import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordRequest;
 import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordResponse;
 import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordMapper;
 import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordResponseShort;
+import com.example.discopedia.discopedia.users.Role;
 import com.example.discopedia.discopedia.users.User;
 import com.example.discopedia.discopedia.users.UserService;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +79,20 @@ public class MusicRecordService {
 
         MusicRecord updated = musicRecordRepository.save(musicRecord);
         return MusicRecordMapper.toDto(updated);
+    }
+
+    public void assertUserIsOwnerOrAdmin(MusicRecord musicRecord, User user) {
+        if (!musicRecord.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("You are not authorized to modify or delete this music record.");
+        }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public String deleteMusicRecord(Long id, User user) {
+        MusicRecord musicRecord = findMusicRecordOrThrow(id);
+        assertUserIsOwnerOrAdmin(musicRecord, user);
+        musicRecordRepository.delete(musicRecord);
+        return "Music record with id " + id + " deleted successfully";
     }
 
     private List<MusicRecordResponseShort> listToDtoShort(List<MusicRecord> musicRecords) {
