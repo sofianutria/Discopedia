@@ -80,5 +80,13 @@ public class UserServiceTest {
             assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
             verify(userRepository, times(1)).findById(id);
         }
+        @Test
+        void getOwnUser_whenUserExists_returnsUserResponse() {
+            Long id = 1L;
+            when(userRepository.findById(id)).thenReturn(Optional.of(user));
+            UserResponse result = userService.getOwnUser(id);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).findById(id);
+        }
     }
 }
