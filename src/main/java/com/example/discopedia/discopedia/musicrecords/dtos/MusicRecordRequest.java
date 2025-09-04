@@ -1,7 +1,7 @@
 package com.example.discopedia.discopedia.musicrecords.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record MusicRecordRequest(
@@ -14,7 +14,7 @@ public record MusicRecordRequest(
         @NotBlank(message= "Musical genre is required")
         String musicalGenre,
 
-        @NotEmpty(message= "Year is required")
+        @NotNull(message= "Year is required")
         Integer year,
 
         @NotBlank(message= "Setlist is required")

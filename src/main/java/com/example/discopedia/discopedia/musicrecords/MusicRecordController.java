@@ -16,7 +16,7 @@ import java.util.List;
 
 @EnableMethodSecurity
 @RestController
-@RequestMapping("/cds")
+@RequestMapping("/cd")
 @RequiredArgsConstructor
 public class MusicRecordController {
     private final MusicRecordService musicRecordService;
@@ -60,9 +60,9 @@ public class MusicRecordController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MusicRecordResponse> updateMusicRecord(
             @AuthenticationPrincipal CustomUserDetail customUserDetail,
-            @PathVariable Long destinationId,
+            @PathVariable Long musicRecordId,
             @RequestBody @Valid MusicRecordRequest request) {
-        MusicRecordResponse updated = musicRecordService.updateMusicRecord(destinationId, request, customUserDetail.getUser());
+        MusicRecordResponse updated = musicRecordService.updateMusicRecord(musicRecordId, request, customUserDetail.getUser());
         return ResponseEntity.ok(updated);
     }
 
