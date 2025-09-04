@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -61,5 +62,15 @@ public class UserServiceTest {
             assertTrue(result.isEmpty());
             verify(userRepository, times(1)).findAll();
         }
+
+        @Test
+        void getUserByIdAdmin_whenUserExists_returnsUserResponse() {
+            Long id = 1L;
+            when(userRepository.findById(id)).thenReturn(Optional.of(user));
+            UserResponse result = userService.getUserByIdAdmin(id);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).findById(id);
+        }
+
     }
 }
