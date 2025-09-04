@@ -18,10 +18,10 @@ public class Review {
     private Long id;
 
     @Column(nullable = false)
-    private int calification;
+    private int qualification;
 
     @Column(nullable = false)
-    private int reviewDescription;
+    private String reviewDescription;
 
     @ManyToOne
     @JoinColumn (name="user_id")
