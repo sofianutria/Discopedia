@@ -49,7 +49,7 @@ public class MusicRecordService {
         return listToDto(filtered);
     }
 
-    public List<MusicRecordResponse> getMusicRecordByUserUsername(String username) {
+    public List<MusicRecordResponse> getMusicRecordsByUserUsername(String username) {
         User user = userService.getByUsername(username);
         List<MusicRecord> listToDto = musicRecordRepository.findByUser(user);
         return listToDto (listToDto);
