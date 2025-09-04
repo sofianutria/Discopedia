@@ -23,7 +23,7 @@ public class MusicRecordService {
     private final MusicRecordRepository musicRecordRepository;
     private final UserService userService;
 
-    public List<MusicRecordResponseShort> getAllDestinations(){
+    public List<MusicRecordResponseShort> getAllMusicRecords(){
         List<MusicRecord> musicRecords = musicRecordRepository.findAll();
         return listToDtoShort(musicRecords);
     }
