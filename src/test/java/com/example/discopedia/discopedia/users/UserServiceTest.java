@@ -4,8 +4,7 @@ import com.example.discopedia.discopedia.musicrecords.MusicRecord;
 import com.example.discopedia.discopedia.reviews.Review;
 import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -13,8 +12,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -40,4 +41,16 @@ public class UserServiceTest {
 
     @AfterEach
     void afterTest(){verifyNoMoreInteractions(userRepository);}
+
+    @Nested
+    @DisplayName("GET users")
+    class GetUserTests{
+        @Test
+        void getAllUsers_whenUsersExist_returnsListOfUsersResponse(){
+            when (userRepository.findAll()).thenReturn(List.of(user));
+            List<UserResponse> result = userService.getAllUsers();
+            assertEquals(List.of(userResponse), result);
+            verify(userRepository, times(1)).findAll();
+        }
+    }
 }
