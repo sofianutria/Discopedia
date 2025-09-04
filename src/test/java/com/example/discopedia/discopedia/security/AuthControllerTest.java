@@ -2,10 +2,12 @@ package com.example.discopedia.discopedia.security;
 
 import com.example.discopedia.discopedia.musicrecords.MusicRecord;
 import com.example.discopedia.discopedia.reviews.Review;
+import com.example.discopedia.discopedia.security.jwt.JwtResponse;
 import com.example.discopedia.discopedia.security.jwt.JwtService;
 import com.example.discopedia.discopedia.users.Role;
 import com.example.discopedia.discopedia.users.User;
 import com.example.discopedia.discopedia.users.UserService;
+import com.example.discopedia.discopedia.users.dtos.UserLoginRequest;
 import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -109,6 +112,45 @@ public class AuthControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{}"))
                     .andExpect(status().isBadRequest());
+        }
+    }
+    @Nested
+    @DisplayName("LOGIN-POST /login")
+    class LoginTests{
+        @Test
+        @DisplayName("Should login and return JWT token and HTTP 200")
+        void testLogin() throws Exception {
+            UserLoginRequest loginRequest = new UserLoginRequest("john", "password");
+            JwtResponse expectedResponse = new JwtResponse("token-testing");
+            String expectedResult = objectMapper.writeValueAsString(expectedResponse);
+            given(jwtService.loginAuthentication(loginRequest)).willReturn(expectedResponse);
+            mockMvc.perform(post("/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(loginRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json(expectedResult));
+            verify(jwtService, times(1)).loginAuthentication(loginRequest);
+        }
+
+        @Test
+        @DisplayName("Should return 400 Bad Request when password is missing during login")
+        void testLoginWithMissingPassword () throws Exception {
+            UserLoginRequest invalidLogin = new UserLoginRequest("john", "");
+            mockMvc.perform(post("/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(invalidLogin)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Should return 401 Unauthorized when credentials are invalid")
+        void testLoginWithInvalidCredentials () throws Exception {
+            UserLoginRequest invalidLogin = new UserLoginRequest("nonexistent", "wrongpassword");
+            given(jwtService.loginAuthentication(invalidLogin)).willThrow(new BadCredentialsException(""));
+            mockMvc.perform(post("/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(invalidLogin)))
+                    .andExpect(status().isUnauthorized());
         }
     }
 }
