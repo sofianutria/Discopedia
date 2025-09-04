@@ -181,13 +181,12 @@ public class UserServiceTest {
         void updateUser_whenUserRequestIsValid_returnsUserResponse() {
             Long id = 1L;//
             when(userRepository.findById(id)).thenReturn(Optional.of(user));
-            when(userRepository.findByUsername(userRegisterRequest.username())).thenReturn(Optional.of(user));
             when(passwordEncoder.encode(userRegisterRequest.password())).thenReturn("encoded-password");
             when(userRepository.save(any(User.class))).thenReturn(user);
             UserResponse result = userService.updateOwnUser(id, userRegisterRequest);
             assertEquals(userResponse, result);
             verify(userRepository, times(1)).findById(id);
-            verify(userRepository, times(1)).findByUsername(userRegisterRequest.username());
+            verify(passwordEncoder, times(1)).encode(userRegisterRequest.password());
             verify(userRepository, times(1)).save(any(User.class));
         }
 
@@ -235,6 +234,14 @@ public class UserServiceTest {
             assertEquals("User with id " + id + " deleted successfully", result);
             verify(userRepository, times(1)).existsById(id);
             verify(userRepository, times(1)).deleteById(id);
+        }
+        @Test
+        void deleteUserByIdAdmin_whenUserDoesNotExist_throwsException() {
+            Long id = 1L;
+            when(userRepository.existsById(id)).thenReturn(false);
+            Exception exception = assertThrows(EntityNotFoundException.class, () -> userService.deleteUserByIdAdmin(id));
+            assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
+            verify(userRepository, times(1)).existsById(id);
         }
     }
 }
