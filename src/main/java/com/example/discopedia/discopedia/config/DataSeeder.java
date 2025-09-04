@@ -2,6 +2,8 @@ package com.example.discopedia.discopedia.config;
 
 import com.example.discopedia.discopedia.musicrecords.MusicRecord;
 import com.example.discopedia.discopedia.musicrecords.MusicRecordRepository;
+import com.example.discopedia.discopedia.reviews.Review;
+import com.example.discopedia.discopedia.reviews.ReviewRepository;
 import com.example.discopedia.discopedia.users.Role;
 import com.example.discopedia.discopedia.users.User;
 import com.example.discopedia.discopedia.users.UserRepository;
@@ -18,7 +20,8 @@ public class DataSeeder {
     public CommandLineRunner seedSampleData(
             UserRepository userRepository,
             MusicRecordRepository musicRecordRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            ReviewRepository reviewRepository
     ){
         return args -> {
             if(userRepository.count()>1){
@@ -35,7 +38,11 @@ public class DataSeeder {
                     "6. wish you were gay " + "7. when the party's over "+ "8. 8 "+ "9. my strange addiction " + "10. bury a friend " +
                     "11. ilomilo " + "12. listen before i go " + "13. i love you " +"14. goodbye ", "https://m.media-amazon.com/images/I/81idxQqxTlL.jpg", user1, new ArrayList<>());
             musicRecordRepository.saveAll(Arrays.asList(musicRecord1));
-            System.out.println("Sample destinations seeded");
+            System.out.println("Sample music RECORD seeded");
+
+            Review review1 = new Review(null, 5, "Best album!", user1, musicRecord1);
+            reviewRepository.saveAll(Arrays.asList(review1));
+            System.out.println("Sample review seeded");
 
         };
     }
