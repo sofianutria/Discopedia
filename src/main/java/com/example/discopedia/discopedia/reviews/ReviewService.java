@@ -4,7 +4,6 @@ import com.example.discopedia.discopedia.exceptions.EntityAlreadyExistsException
 import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.musicrecords.MusicRecord;
 import com.example.discopedia.discopedia.musicrecords.MusicRecordRepository;
-import com.example.discopedia.discopedia.musicrecords.MusicRecordService;
 import com.example.discopedia.discopedia.reviews.dtos.ReviewMapper;
 import com.example.discopedia.discopedia.reviews.dtos.ReviewRequest;
 import com.example.discopedia.discopedia.reviews.dtos.ReviewResponse;
@@ -66,14 +65,29 @@ public class ReviewService {
         return ReviewMapper.toDto(updated);
     }
 
+    @PreAuthorize("isAuthenticated()")
+    public String deleteReview(Long id, User user) {
+        Review review = findReviewOrThrow(id);
+        assertUserIsOwnerOrAdmin(review, user);
+
+        reviewRepository.delete(review);
+        return "Review with id " + id + " deleted successfully";
+    }
+
     public void assertUserIsOwner(Review review, User user) {
         if (!review.getUser().getId().equals(user.getId()) ) {
-            throw new AccessDeniedException("You are not authorized to modify or delete this music record.");
+            throw new AccessDeniedException("You are not authorized to modify or delete this review.");
         }
     }
 
     private Review findReviewOrThrow(Long id) {
         return reviewRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Review", "id", id.toString()));
+    }
+
+    public void assertUserIsOwnerOrAdmin(Review review, User user) {
+        if (!review.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("You are not authorized to modify or delete this review");
+        }
     }
 }
