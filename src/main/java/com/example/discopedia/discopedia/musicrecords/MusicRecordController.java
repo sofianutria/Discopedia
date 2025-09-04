@@ -41,4 +41,10 @@ public class MusicRecordController {
         List<MusicRecordResponse> list = musicRecordService.getFilteredMusicRecord(title, artist);
         return ResponseEntity.ok(list);
     }
+
+    @GetMapping("/user")
+    public ResponseEntity<List<MusicRecordResponse>> getMusicRecordByUserUsername(@RequestParam String username) {
+        List<MusicRecordResponse> list = musicRecordService.getMusicRecordsByUserUsername(username);
+        return ResponseEntity.ok(list);
+    }
 }
