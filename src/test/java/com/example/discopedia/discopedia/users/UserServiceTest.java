@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,6 +51,14 @@ public class UserServiceTest {
             when (userRepository.findAll()).thenReturn(List.of(user));
             List<UserResponse> result = userService.getAllUsers();
             assertEquals(List.of(userResponse), result);
+            verify(userRepository, times(1)).findAll();
+        }
+
+        @Test
+        void getAllUsers_whenNoUsers_returnsEmptyList() {
+            when(userRepository.findAll()).thenReturn(List.of());
+            List<UserResponse> result = userService.getAllUsers();
+            assertTrue(result.isEmpty());
             verify(userRepository, times(1)).findAll();
         }
     }
