@@ -28,7 +28,7 @@ public class UserController {
     }
     @GetMapping("/me/cd")
     public ResponseEntity <List<MusicRecordResponse>> getMyCds(@AuthenticationPrincipal CustomUserDetail userDetail){
-        List<MusicRecordResponse> list = musicRecordService.getCdsByUserUsername(userDetail.getUser().getUsername());
+        List<MusicRecordResponse> list = musicRecordService.getMusicRecordsByUserUsername(userDetail.getUser().getUsername());
         return ResponseEntity.ok(list);
     }
 
