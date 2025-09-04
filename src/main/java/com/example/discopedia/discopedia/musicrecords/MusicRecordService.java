@@ -8,6 +8,7 @@ import com.example.discopedia.discopedia.users.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -18,6 +19,12 @@ public class MusicRecordService {
 
     public List<MusicRecordResponseShort> getAllDestinations(){
         List<MusicRecord> musicRecords = musicRecordRepository.findAll();
+        return listToDtoShort(musicRecords);
+    }
+
+    public List<MusicRecordResponseShort> getAllMusicRecordsUser(String username){
+        List<MusicRecord> musicRecords = musicRecordRepository.findAll();
+        musicRecords.sort(Comparator.comparing(musicRecord -> musicRecord.getUser() != null && username.equals(musicRecord.getUser().getUsername()) ? 0 : 1));
         return listToDtoShort(musicRecords);
     }
 
