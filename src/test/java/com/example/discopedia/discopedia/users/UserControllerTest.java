@@ -23,6 +23,7 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -106,6 +107,28 @@ public class UserControllerTest {
                     .andExpect(jsonPath("$[0].genre").value(musicRecordResponse.musicalGenre()));
             verify(musicRecordService, times(1))
                     .getMusicRecordsByUserUsername(customUserDetail.getUser().getUsername());
+        }
+    }
+
+    @Nested
+    @DisplayName("PUT /users")
+    class UpdateUsersTests {
+
+        @Test
+        void updateMyUser_whenValidRequest_returnsUserResponse() throws Exception {
+            when(userService.updateOwnUser(eq(customUserDetail.getId()), any(UserRegisterRequest.class)))
+                    .thenReturn(userResponse);
+            mockMvc.perform(put("/users/me")
+                            .principal(() -> customUserDetail.getUsername())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(asJsonString(userRegisterRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(userResponse.id()))
+                    .andExpect(jsonPath("$.username").value(userResponse.username()))
+                    .andExpect(jsonPath("$.email").value(userResponse.email()))
+                    .andExpect(jsonPath("$.role").value(userResponse.role()));
+            verify(userService, times(1)).updateOwnUser(eq(customUserDetail.getId()), any(UserRegisterRequest.class));
         }
     }
 }
