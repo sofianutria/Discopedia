@@ -1,5 +1,6 @@
 package com.example.discopedia.discopedia.musicrecords;
 
+import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordRequest;
 import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordResponse;
 import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordMapper;
@@ -7,6 +8,7 @@ import com.example.discopedia.discopedia.musicrecords.dtos.MusicRecordResponseSh
 import com.example.discopedia.discopedia.users.User;
 import com.example.discopedia.discopedia.users.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +53,31 @@ public class MusicRecordService {
         MusicRecord musicRecord = MusicRecordMapper.toEntity(musicRecordRequest, user);
         MusicRecord saveMusicRecord = musicRecordRepository.save(musicRecord);
         return MusicRecordMapper.toDto(saveMusicRecord);
+    }
+
+    private MusicRecord findMusicRecordOrThrow(Long id) {
+        return musicRecordRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Music record", "id", id.toString()));
+    }
+    public void assertUserIsOwner(MusicRecord musicRecord, User user) {
+        if (!musicRecord.getUser().getId().equals(user.getId()) ) {
+            throw new AccessDeniedException("You are not authorized to modify or delete this music record.");
+        }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public MusicRecordResponse updateMusicRecord(Long id, MusicRecordRequest musicRecordRequest, User user){
+        MusicRecord musicRecord = findMusicRecordOrThrow(id);
+        assertUserIsOwner(musicRecord, user);
+        musicRecord.setTitle(musicRecordRequest.title());
+        musicRecord.setArtist(musicRecordRequest.artist());
+        musicRecord.setMusicalGenre(musicRecordRequest.musicalGenre());
+        musicRecord.setYear(musicRecordRequest.year());
+        musicRecord.setImageUrl(musicRecordRequest.image());
+        musicRecord.setSetlist(musicRecordRequest.setlist());
+
+        MusicRecord updated = musicRecordRepository.save(musicRecord);
+        return MusicRecordMapper.toDto(updated);
     }
 
     private List<MusicRecordResponseShort> listToDtoShort(List<MusicRecord> musicRecords) {
