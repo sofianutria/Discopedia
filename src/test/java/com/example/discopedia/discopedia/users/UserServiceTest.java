@@ -97,5 +97,13 @@ public class UserServiceTest {
             assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
             verify(userRepository, times(1)).findById(id);
         }
+        @Test
+        void getByUsername_whenUserExists_returnsUser() {
+            String username = "sofia";
+            when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+            User result = userService.getByUsername(username);
+            assertEquals(user, result);
+            verify(userRepository, times(1)).findByUsername(username);
+        }
     }
 }
