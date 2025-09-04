@@ -31,4 +31,15 @@ public class ReviewController {
         ReviewResponse created = reviewService.addReview(customUserDetail.getUser().getId(), request);
         return ResponseEntity.ok(created);
     }
+
+    @PutMapping("/{reviewId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ReviewResponse> updateReview(
+            @AuthenticationPrincipal CustomUserDetail customUserDetail,
+            @PathVariable Long reviewId,
+            @RequestBody @Valid ReviewRequest request
+    ) {
+        ReviewResponse updated = reviewService.updateReview(reviewId, request, customUserDetail.getUser());
+        return ResponseEntity.ok(updated);
+    }
 }
