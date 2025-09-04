@@ -27,14 +27,6 @@ public class MusicRecordController {
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/auth")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<MusicRecordResponseShort>> getAllMusicRecordsUser(
-            @AuthenticationPrincipal CustomUserDetail customUserDetail) {
-        List<MusicRecordResponseShort> list = musicRecordService.getAllMusicRecordsUser(customUserDetail.getUsername());
-        return ResponseEntity.ok(list);
-    }
-
     @GetMapping("/filter")
     public ResponseEntity<List<MusicRecordResponse>> getFilteredMusicRecords(@RequestParam(required = false) String title, @RequestParam (required = false) String artist)  {
         List<MusicRecordResponse> list = musicRecordService.getFilteredMusicRecord(title, artist);

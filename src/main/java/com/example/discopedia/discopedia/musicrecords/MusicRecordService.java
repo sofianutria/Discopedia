@@ -28,12 +28,6 @@ public class MusicRecordService {
         return listToDtoShort(musicRecords);
     }
 
-    public List<MusicRecordResponseShort> getAllMusicRecordsUser(String username){
-        List<MusicRecord> musicRecords = musicRecordRepository.findAll();
-        musicRecords.sort(Comparator.comparing(musicRecord -> musicRecord.getUser() != null && username.equals(musicRecord.getUser().getUsername()) ? 0 : 1));
-        return listToDtoShort(musicRecords);
-    }
-
     public List<MusicRecordResponse> getFilteredMusicRecord(String title, String artist) {
         List<MusicRecord> filtered = new ArrayList<>();
         boolean titleIsEmpty = title == null || title.isBlank();
