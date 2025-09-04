@@ -36,21 +36,23 @@ public class UserServiceTest {
     private BCryptPasswordEncoder passwordEncoder;
 
     @BeforeEach
-    void setUp(){
-        user = new User(1L,"sofia","sofia@email.com","encoded-password",Role.USER, new ArrayList<MusicRecord>(), new ArrayList<Review>());
-        userResponse = new UserResponse(1L, "sofia","sofia@email.com", "USER");
-        userRegisterRequest = new UserRegisterRequest("sofia", "sofia@email.com","Password1!.");
+    void setUp() {
+        user = new User(1L, "sofia", "sofia@email.com", "encoded-password", Role.USER, new ArrayList<MusicRecord>(), new ArrayList<Review>());
+        userResponse = new UserResponse(1L, "sofia", "sofia@email.com", "USER");
+        userRegisterRequest = new UserRegisterRequest("sofia", "sofia@email.com", "Password1!.");
     }
 
     @AfterEach
-    void afterTest(){verifyNoMoreInteractions(userRepository);}
+    void afterTest() {
+        verifyNoMoreInteractions(userRepository);
+    }
 
     @Nested
     @DisplayName("GET users")
-    class GetUserTests{
+    class GetUserTests {
         @Test
-        void getAllUsers_whenUsersExist_returnsListOfUsersResponse(){
-            when (userRepository.findAll()).thenReturn(List.of(user));
+        void getAllUsers_whenUsersExist_returnsListOfUsersResponse() {
+            when(userRepository.findAll()).thenReturn(List.of(user));
             List<UserResponse> result = userService.getAllUsers();
             assertEquals(List.of(userResponse), result);
             verify(userRepository, times(1)).findAll();
@@ -72,6 +74,7 @@ public class UserServiceTest {
             assertEquals(userResponse, result);
             verify(userRepository, times(1)).findById(id);
         }
+
         @Test
         void getUserByIdAdmin_whenUserDoesNotExist_throwsException() {
             Long id = 1L;
@@ -81,6 +84,7 @@ public class UserServiceTest {
             assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
             verify(userRepository, times(1)).findById(id);
         }
+
         @Test
         void getOwnUser_whenUserExists_returnsUserResponse() {
             Long id = 1L;
@@ -89,6 +93,7 @@ public class UserServiceTest {
             assertEquals(userResponse, result);
             verify(userRepository, times(1)).findById(id);
         }
+
         @Test
         void getOwnUser_whenUserDoesNotExist_throwsException() {
             Long id = 1L;
@@ -98,6 +103,7 @@ public class UserServiceTest {
             assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
             verify(userRepository, times(1)).findById(id);
         }
+
         @Test
         void getByUsername_whenUserExists_returnsUser() {
             String username = "sofia";
@@ -106,6 +112,7 @@ public class UserServiceTest {
             assertEquals(user, result);
             verify(userRepository, times(1)).findByUsername(username);
         }
+
         @Test
         void getByUsername_whenUserDoesNotExist_throwsException() {
             String username = "Lara";
@@ -119,7 +126,7 @@ public class UserServiceTest {
 
     @Nested
     @DisplayName("POST users")
-    class AddUserTest{
+    class AddUserTest {
         @Test
         void addUser_whenUserIsNew_returnsUserResponse() {
             when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(false);
@@ -132,6 +139,7 @@ public class UserServiceTest {
             verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
             verify(userRepository, times(1)).save(any(User.class));
         }
+
         @Test
         void addUser_whenUsernameAlreadyExists_throwsException() {
             when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(true);
@@ -151,6 +159,7 @@ public class UserServiceTest {
             verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
             verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
         }
+
         @Test
         void addAdmin_whenAdminIsNew_returnsUserResponse() {
             when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(false);
@@ -163,23 +172,35 @@ public class UserServiceTest {
             verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
             verify(userRepository, times(1)).save(any(User.class));
         }
+    }
 
-        @Nested
-        @DisplayName("PUT users")
-        class UpdateUserTests{
-            @Test
-            void updateUser_whenUserRequestIsValid_returnsUserResponse(){
-                Long id = 1L;
-                when(userRepository.findById(id)).thenReturn(Optional.of(user));
-                when(userRepository.findByUsername(userRegisterRequest.username())).thenReturn(Optional.of(user)); // username igual
-                when(passwordEncoder.encode(userRegisterRequest.password())).thenReturn("encoded-password");
-                when(userRepository.save(any(User.class))).thenReturn(user);
-                UserResponse result = userService.updateOwnUser(id, userRegisterRequest);
-                assertEquals(userResponse, result);
-                verify(userRepository, times(1)).findById(id);
-                verify(userRepository, times(1)).findByUsername(userRegisterRequest.username());
-                verify(userRepository, times(1)).save(any(User.class));
-            }
+    @Nested
+    @DisplayName("PUT users")
+    class UpdateUserTests {
+        @Test
+        void updateUser_whenUserRequestIsValid_returnsUserResponse() {
+            Long id = 1L;//
+            when(userRepository.findById(id)).thenReturn(Optional.of(user));
+            when(userRepository.findByUsername(userRegisterRequest.username())).thenReturn(Optional.of(user));
+            when(passwordEncoder.encode(userRegisterRequest.password())).thenReturn("encoded-password");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+            UserResponse result = userService.updateOwnUser(id, userRegisterRequest);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).findById(id);
+            verify(userRepository, times(1)).findByUsername(userRegisterRequest.username());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        void updateUser_whenUsernameAlreadyExists_throwsException() {
+            Long id = 1L;
+            UserRegisterRequest newRequest = new UserRegisterRequest("existingUsername", "sofia@email.com","Password1!.");
+            when(userRepository.findById(id)).thenReturn(Optional.of(user));
+            when(userRepository.findByUsername(newRequest.username())).thenReturn(Optional.of(user));
+            Exception exception = assertThrows(EntityAlreadyExistsException.class, () -> userService.updateOwnUser(id, newRequest));
+            assertEquals("User with username \"" + newRequest.username() + "\" already exists", exception.getMessage());
+            verify(userRepository, times(1)).findById(id);
+            verify(userRepository, times(1)).findByUsername(newRequest.username());
         }
     }
 }
