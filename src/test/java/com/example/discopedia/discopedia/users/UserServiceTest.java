@@ -4,6 +4,7 @@ import com.example.discopedia.discopedia.exceptions.EntityAlreadyExistsException
 import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.musicrecords.MusicRecord;
 import com.example.discopedia.discopedia.reviews.Review;
+import com.example.discopedia.discopedia.security.CustomUserDetail;
 import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
 import com.example.discopedia.discopedia.users.dtos.UserResponse;
 import org.junit.jupiter.api.*;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
@@ -244,4 +247,32 @@ public class UserServiceTest {
             verify(userRepository, times(1)).existsById(id);
         }
     }
+
+    @Nested
+    @DisplayName("LOAD users")
+    class LoadUserTests {
+
+        @Test
+        void loadUserByUsername_whenUserExists_returnsUserDetail() {
+            String username = "sofia";
+            when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+            UserDetails result = userService.loadUserByUsername(username);
+            assertEquals(user.getUsername(), result.getUsername());
+            assertEquals(user.getPassword(), result.getPassword());
+            assertEquals(new CustomUserDetail(user).getAuthorities(), result.getAuthorities());
+            verify(userRepository, times(1)).findByUsername(username);
+        }
+
+        @Test
+        void loadUserByUsername_whenUserDoesNotExist_throwsException() {
+            String username = "mike";
+            when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+            Exception exception = assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername(username));
+
+            assertEquals("User not found", exception.getMessage());
+            verify(userRepository, times(1)).findByUsername(username);
+        }
+    }
+
 }
