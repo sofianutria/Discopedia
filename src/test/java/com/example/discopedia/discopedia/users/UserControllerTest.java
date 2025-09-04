@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -20,10 +21,9 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -80,17 +80,17 @@ public class UserControllerTest {
     @DisplayName("GET /users")
     class GetUsersTests{
         @Test
+        @WithMockUser (username="sofia", roles={"USER"})
         void getMyUser_whenAuthenticated_returnsUserResponse() throws Exception {
-            when(userService.getOwnUser(customUserDetail.getId())).thenReturn(userResponse);
-            mockMvc.perform(get("/users/me")
-                            .principal(() -> customUserDetail.getUsername()))
+            when(userService.getOwnUser(1L)).thenReturn(userResponse);
+            mockMvc.perform(get("/users/me"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.id").value(userResponse.id()))
                     .andExpect(jsonPath("$.username").value(userResponse.username()))
                     .andExpect(jsonPath("$.email").value(userResponse.email()))
                     .andExpect(jsonPath("$.role").value(userResponse.role()));
-            verify(userService, times(1)).getOwnUser(customUserDetail.getId());
+            verify(userService, times(1)).getOwnUser(1L);
         }
 
         @Test
@@ -112,14 +112,13 @@ public class UserControllerTest {
 
     @Nested
     @DisplayName("PUT /users")
+    @WithMockUser(username = "sofia", roles = {"USER"})
     class UpdateUsersTests {
 
         @Test
         void updateMyUser_whenValidRequest_returnsUserResponse() throws Exception {
-            when(userService.updateOwnUser(eq(customUserDetail.getId()), any(UserRegisterRequest.class)))
-                    .thenReturn(userResponse);
+            when(userService.updateOwnUser(1L, userRegisterRequest)).thenReturn(userResponse);
             mockMvc.perform(put("/users/me")
-                            .principal(() -> customUserDetail.getUsername())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJsonString(userRegisterRequest)))
                     .andExpect(status().isOk())
@@ -128,7 +127,23 @@ public class UserControllerTest {
                     .andExpect(jsonPath("$.username").value(userResponse.username()))
                     .andExpect(jsonPath("$.email").value(userResponse.email()))
                     .andExpect(jsonPath("$.role").value(userResponse.role()));
-            verify(userService, times(1)).updateOwnUser(eq(customUserDetail.getId()), any(UserRegisterRequest.class));
+            verify(userService, times(1)).updateOwnUser(1L, userRegisterRequest);
         }
     }
+    @Nested
+    @DisplayName("DELETE /users")
+    class DeleteUsersTests {
+
+        @Test
+        @WithMockUser(username = "sofia", roles = {"USER"})
+        void deleteMyUser_whenAuthenticated_returnsMessage() throws Exception {
+            String expectedMessage = "User with id " + customUserDetail.getId() + " deleted successfully";
+            when(userService.deleteOwnUser(1L)).thenReturn(expectedMessage);
+            mockMvc.perform(delete("/users/me"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(expectedMessage));
+            verify(userService, times(1)).deleteOwnUser(1L);
+        }
+    }
+
 }
