@@ -1,5 +1,6 @@
 package com.example.discopedia.discopedia.users;
 
+import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.musicrecords.MusicRecord;
 import com.example.discopedia.discopedia.reviews.Review;
 import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
@@ -15,8 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,6 +71,14 @@ public class UserServiceTest {
             assertEquals(userResponse, result);
             verify(userRepository, times(1)).findById(id);
         }
-
+        @Test
+        void getUserByIdAdmin_whenUserDoesNotExist_throwsException() {
+            Long id = 1L;
+            when(userRepository.findById(id)).thenReturn(Optional.empty());
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                    () -> userService.getUserByIdAdmin(id));
+            assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
+            verify(userRepository, times(1)).findById(id);
+        }
     }
 }
