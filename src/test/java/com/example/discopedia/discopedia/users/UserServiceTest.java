@@ -38,7 +38,7 @@ public class UserServiceTest {
     @BeforeEach
     void setUp(){
         user = new User(1L,"sofia","sofia@email.com","encoded-password",Role.USER, new ArrayList<MusicRecord>(), new ArrayList<Review>());
-        userResponse = new UserResponse(1L, "sofia@email.com","encoded-password", "USER");
+        userResponse = new UserResponse(1L, "sofia","sofia@email.com", "USER");
         userRegisterRequest = new UserRegisterRequest("sofia", "sofia@email.com","Password1!.");
     }
 
@@ -150,6 +150,18 @@ public class UserServiceTest {
             assertEquals("User with email \"" + userRegisterRequest.email() + "\" already exists", exception.getMessage());
             verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
             verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
+        }
+        @Test
+        void addAdmin_whenAdminIsNew_returnsUserResponse() {
+            when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(false);
+            when(userRepository.existsByEmail(userRegisterRequest.email())).thenReturn(false);
+            when(passwordEncoder.encode(any())).thenReturn("encoded-password");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+            UserResponse result = userService.addAdmin(userRegisterRequest);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
+            verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
+            verify(userRepository, times(1)).save(any(User.class));
         }
     }
 }
