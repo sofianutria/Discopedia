@@ -115,4 +115,21 @@ public class UserServiceTest {
             verify(userRepository, times(1)).findByUsername(username);
         }
     }
+
+    @Nested
+    @DisplayName("POST users")
+    class AddUserTest{
+        @Test
+        void addUser_whenUserIsNew_returnsUserResponse() {
+            when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(false);
+            when(userRepository.existsByEmail(userRegisterRequest.email())).thenReturn(false);
+            when(passwordEncoder.encode(any())).thenReturn("encoded-password");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+            UserResponse result = userService.addUser(userRegisterRequest);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
+            verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+    }
 }
