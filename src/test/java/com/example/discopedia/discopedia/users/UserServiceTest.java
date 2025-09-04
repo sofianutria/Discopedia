@@ -203,4 +203,18 @@ public class UserServiceTest {
             verify(userRepository, times(1)).findByUsername(newRequest.username());
         }
     }
+    @Nested
+    @DisplayName("DELETE users")
+    class DeleteUserTests{
+        @Test
+        void deleteOwnUser_whenUserExists_returnsMessage() {
+            Long id = 1L;
+            when(userRepository.existsById(id)).thenReturn(true);
+            doNothing().when(userRepository).deleteById(id);
+            String result = userService.deleteOwnUser(id);
+            assertEquals("User with id " + id + " deleted successfully", result);
+            verify(userRepository, times(1)).existsById(id);
+            verify(userRepository, times(1)).deleteById(id);
+        }
+    }
 }
