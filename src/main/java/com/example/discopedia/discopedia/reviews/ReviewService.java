@@ -4,6 +4,7 @@ import com.example.discopedia.discopedia.exceptions.EntityAlreadyExistsException
 import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
 import com.example.discopedia.discopedia.musicrecords.MusicRecord;
 import com.example.discopedia.discopedia.musicrecords.MusicRecordRepository;
+import com.example.discopedia.discopedia.musicrecords.MusicRecordService;
 import com.example.discopedia.discopedia.reviews.dtos.ReviewMapper;
 import com.example.discopedia.discopedia.reviews.dtos.ReviewRequest;
 import com.example.discopedia.discopedia.reviews.dtos.ReviewResponse;
@@ -11,6 +12,8 @@ import com.example.discopedia.discopedia.users.User;
 import com.example.discopedia.discopedia.users.UserRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ReviewService {
@@ -22,6 +25,16 @@ public class ReviewService {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
         this.musicRecordRepository = musicRecordRepository;
+    }
+
+    public List<ReviewResponse> getReviewsByMusicRecord(Long musicRecordId){
+        MusicRecord musicRecord = musicRecordRepository.findById(musicRecordId)
+                .orElseThrow(()->new EntityNotFoundException("Music record", "id", musicRecordId.toString()));
+
+        return reviewRepository.findByMusicRecord(musicRecord)
+                .stream()
+                .map(ReviewMapper::toDto)
+                .toList();
     }
 
     @PreAuthorize("isAuthenticated()")
