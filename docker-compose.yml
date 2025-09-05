@@ -13,10 +13,10 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker # Activates Docker-specific configuration profile
       - SERVER_PORT=8080 # Sets the server port inside container
-      - DB_URL=jdbc:mysql://localhost:3306/discopedia
+      - DB_URL=jdbc:mysql://discopedia-test-db:3306/discopedia
       # Database connection URL using service name
-      - DB_USERNAME=root # Database username
-      - DB_PASSWORD=root # Database password
+      - DB_USERNAME=discopedia # Database username
+      - DB_PASSWORD=discopedia # Database password
 
     # Restart policy - never restart (single-run test container)
     restart: no
@@ -50,7 +50,7 @@ services:
     environment:
       MYSQL_DATABASE: discopedia # Creates database named 'discopedia'
       MYSQL_USER: discopedia # Creates user 'discopedia'
-      MYSQL_PASSWORD: discopedia1 # Sets password for 'discopedia' user
+      MYSQL_PASSWORD: discopedia # Sets password for 'discopedia' user
       MYSQL_ROOT_PASSWORD: root # Sets root user password
 
 
@@ -61,14 +61,7 @@ services:
     # Health check configuration for MySQL database
     healthcheck:
       test: [
-        "CMD",
-        "mysqladmin", # MySQL admin utility
-        "ping", # Ping command to check if MySQL is responding
-        "-h",
-        "localhost", # Connect to localhost
-        "-u",
-        "discopedia", # Use dreamroute user for health check
-        "discopedia1", # Password for discopedia user
+        "CMD", "curl", "-f", "http://localhost:8080/health"
       ]
       interval: 10s # Check every 10 seconds
       timeout: 5s # Timeout after 5 seconds
