@@ -1,0 +1,278 @@
+package com.example.discopedia.discopedia.users;
+
+import com.example.discopedia.discopedia.exceptions.EntityAlreadyExistsException;
+import com.example.discopedia.discopedia.exceptions.EntityNotFoundException;
+import com.example.discopedia.discopedia.musicrecords.MusicRecord;
+import com.example.discopedia.discopedia.reviews.Review;
+import com.example.discopedia.discopedia.security.CustomUserDetail;
+import com.example.discopedia.discopedia.users.dtos.UserRegisterRequest;
+import com.example.discopedia.discopedia.users.dtos.UserResponse;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+public class UserServiceTest {
+    @InjectMocks
+    private UserService userService;
+
+    private User user;
+    private UserRegisterRequest userRegisterRequest;
+    private UserResponse userResponse;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private BCryptPasswordEncoder passwordEncoder;
+
+    @BeforeEach
+    void setUp() {
+        user = new User(1L, "sofia", "sofia@email.com", "encoded-password", Role.USER, new ArrayList<MusicRecord>(), new ArrayList<Review>());
+        userResponse = new UserResponse(1L, "sofia", "sofia@email.com", "USER");
+        userRegisterRequest = new UserRegisterRequest("sofia", "sofia@email.com", "Password1!.");
+    }
+
+    @AfterEach
+    void afterTest() {
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Nested
+    @DisplayName("GET users")
+    class GetUserTests {
+        @Test
+        void getAllUsers_whenUsersExist_returnsListOfUsersResponse() {
+            when(userRepository.findAll()).thenReturn(List.of(user));
+            List<UserResponse> result = userService.getAllUsers();
+            assertEquals(List.of(userResponse), result);
+            verify(userRepository, times(1)).findAll();
+        }
+
+        @Test
+        void getAllUsers_whenNoUsers_returnsEmptyList() {
+            when(userRepository.findAll()).thenReturn(List.of());
+            List<UserResponse> result = userService.getAllUsers();
+            assertTrue(result.isEmpty());
+            verify(userRepository, times(1)).findAll();
+        }
+
+        @Test
+        void getUserByIdAdmin_whenUserExists_returnsUserResponse() {
+            Long id = 1L;
+            when(userRepository.findById(id)).thenReturn(Optional.of(user));
+            UserResponse result = userService.getUserByIdAdmin(id);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).findById(id);
+        }
+
+        @Test
+        void getUserByIdAdmin_whenUserDoesNotExist_throwsException() {
+            Long id = 1L;
+            when(userRepository.findById(id)).thenReturn(Optional.empty());
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                    () -> userService.getUserByIdAdmin(id));
+            assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
+            verify(userRepository, times(1)).findById(id);
+        }
+
+        @Test
+        void getOwnUser_whenUserExists_returnsUserResponse() {
+            Long id = 1L;
+            when(userRepository.findById(id)).thenReturn(Optional.of(user));
+            UserResponse result = userService.getOwnUser(id);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).findById(id);
+        }
+
+        @Test
+        void getOwnUser_whenUserDoesNotExist_throwsException() {
+            Long id = 1L;
+            when(userRepository.findById(id)).thenReturn(Optional.empty());
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                    () -> userService.getOwnUser(id));
+            assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
+            verify(userRepository, times(1)).findById(id);
+        }
+
+        @Test
+        void getByUsername_whenUserExists_returnsUser() {
+            String username = "sofia";
+            when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+            User result = userService.getByUsername(username);
+            assertEquals(user, result);
+            verify(userRepository, times(1)).findByUsername(username);
+        }
+
+        @Test
+        void getByUsername_whenUserDoesNotExist_throwsException() {
+            String username = "Lara";
+            when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                    () -> userService.getByUsername(username));
+            assertEquals("User with username \"" + username + "\" not found", exception.getMessage());
+            verify(userRepository, times(1)).findByUsername(username);
+        }
+    }
+
+    @Nested
+    @DisplayName("POST users")
+    class AddUserTest {
+        @Test
+        void addUser_whenUserIsNew_returnsUserResponse() {
+            when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(false);
+            when(userRepository.existsByEmail(userRegisterRequest.email())).thenReturn(false);
+            when(passwordEncoder.encode(any())).thenReturn("encoded-password");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+            UserResponse result = userService.addUser(userRegisterRequest);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
+            verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        void addUser_whenUsernameAlreadyExists_throwsException() {
+            when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(true);
+            EntityAlreadyExistsException exception = assertThrows(EntityAlreadyExistsException.class,
+                    () -> userService.addUser(userRegisterRequest));
+            assertEquals("User with username \"" + userRegisterRequest.username() + "\" already exists", exception.getMessage());
+            verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
+        }
+
+        @Test
+        void addUser_whenEmailAlreadyExists_throwsException() {
+            when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(false);
+            when(userRepository.existsByEmail(userRegisterRequest.email())).thenReturn(true);
+            EntityAlreadyExistsException exception = assertThrows(EntityAlreadyExistsException.class,
+                    () -> userService.addUser(userRegisterRequest));
+            assertEquals("User with email \"" + userRegisterRequest.email() + "\" already exists", exception.getMessage());
+            verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
+            verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
+        }
+
+        @Test
+        void addAdmin_whenAdminIsNew_returnsUserResponse() {
+            when(userRepository.existsByUsername(userRegisterRequest.username())).thenReturn(false);
+            when(userRepository.existsByEmail(userRegisterRequest.email())).thenReturn(false);
+            when(passwordEncoder.encode(any())).thenReturn("encoded-password");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+            UserResponse result = userService.addAdmin(userRegisterRequest);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).existsByUsername(userRegisterRequest.username());
+            verify(userRepository, times(1)).existsByEmail(userRegisterRequest.email());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("PUT users")
+    class UpdateUserTests {
+        @Test
+        void updateUser_whenUserRequestIsValid_returnsUserResponse() {
+            Long id = 1L;//
+            when(userRepository.findById(id)).thenReturn(Optional.of(user));
+            when(passwordEncoder.encode(userRegisterRequest.password())).thenReturn("encoded-password");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+            UserResponse result = userService.updateOwnUser(id, userRegisterRequest);
+            assertEquals(userResponse, result);
+            verify(userRepository, times(1)).findById(id);
+            verify(passwordEncoder, times(1)).encode(userRegisterRequest.password());
+            verify(userRepository, times(1)).save(any(User.class));
+        }
+
+        @Test
+        void updateUser_whenUsernameAlreadyExists_throwsException() {
+            Long id = 1L;
+            UserRegisterRequest newRequest = new UserRegisterRequest("existingUsername", "sofia@email.com","Password1!.");
+            when(userRepository.findById(id)).thenReturn(Optional.of(user));
+            when(userRepository.findByUsername(newRequest.username())).thenReturn(Optional.of(user));
+            Exception exception = assertThrows(EntityAlreadyExistsException.class, () -> userService.updateOwnUser(id, newRequest));
+            assertEquals("User with username \"" + newRequest.username() + "\" already exists", exception.getMessage());
+            verify(userRepository, times(1)).findById(id);
+            verify(userRepository, times(1)).findByUsername(newRequest.username());
+        }
+    }
+    @Nested
+    @DisplayName("DELETE users")
+    class DeleteUserTests{
+        @Test
+        void deleteOwnUser_whenUserExists_returnsMessage() {
+            Long id = 1L;
+            when(userRepository.existsById(id)).thenReturn(true);
+            doNothing().when(userRepository).deleteById(id);
+            String result = userService.deleteOwnUser(id);
+            assertEquals("User with id " + id + " deleted successfully", result);
+            verify(userRepository, times(1)).existsById(id);
+            verify(userRepository, times(1)).deleteById(id);
+        }
+
+        @Test
+        void deleteOwnUser_whenUserDoesNotExist_throwsException() {
+            Long id = 1L;
+            when(userRepository.existsById(id)).thenReturn(false);
+            Exception exception = assertThrows(EntityNotFoundException.class, () -> userService.deleteOwnUser(id));
+            assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
+            verify(userRepository, times(1)).existsById(id);
+        }
+
+        @Test
+        void deleteUserByIdAdmin_whenUserExists_returnsMessage() {
+            Long id = 1L;
+            when(userRepository.existsById(id)).thenReturn(true);
+            doNothing().when(userRepository).deleteById(id);
+            String result = userService.deleteUserByIdAdmin(id);
+            assertEquals("User with id " + id + " deleted successfully", result);
+            verify(userRepository, times(1)).existsById(id);
+            verify(userRepository, times(1)).deleteById(id);
+        }
+        @Test
+        void deleteUserByIdAdmin_whenUserDoesNotExist_throwsException() {
+            Long id = 1L;
+            when(userRepository.existsById(id)).thenReturn(false);
+            Exception exception = assertThrows(EntityNotFoundException.class, () -> userService.deleteUserByIdAdmin(id));
+            assertEquals("User with id \"" + id + "\" not found", exception.getMessage());
+            verify(userRepository, times(1)).existsById(id);
+        }
+    }
+
+    @Nested
+    @DisplayName("LOAD users")
+    class LoadUserTests {
+
+        @Test
+        void loadUserByUsername_whenUserExists_returnsUserDetail() {
+            String username = "sofia";
+            when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+            UserDetails result = userService.loadUserByUsername(username);
+            assertEquals(user.getUsername(), result.getUsername());
+            assertEquals(user.getPassword(), result.getPassword());
+            assertEquals(new CustomUserDetail(user).getAuthorities(), result.getAuthorities());
+            verify(userRepository, times(1)).findByUsername(username);
+        }
+
+        @Test
+        void loadUserByUsername_whenUserDoesNotExist_throwsException() {
+            String username = "mike";
+            when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+            Exception exception = assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername(username));
+
+            assertEquals("User not found", exception.getMessage());
+            verify(userRepository, times(1)).findByUsername(username);
+        }
+    }
+
+}
