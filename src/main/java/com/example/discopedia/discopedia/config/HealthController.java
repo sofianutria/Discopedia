@@ -21,7 +21,7 @@ public class HealthController {
     public ResponseEntity<Map<String, Object>> health() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "UP");
-        response.put("application", "murmuration");
+        response.put("application", "discopedia");
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection.isValid(5)) {

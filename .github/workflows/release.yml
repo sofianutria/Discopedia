@@ -75,12 +75,12 @@ jobs:
       #     body: |
       #       ## Changes
       #
-      #       Docker image: `${{ secrets.DOCKER_USERNAME }}/murmuration:${{ github.ref_name }}`
+      #       Docker image: `${{ secrets.DOCKER_USERNAME }}/discopedia:${{ github.ref_name }}`
       #
       #       ## Installation
       #
       #       ```bash
-      #       docker pull ${{ secrets.DOCKER_USERNAME }}/murmuration:${{ github.ref_name }}
+      #       docker pull ${{ secrets.DOCKER_USERNAME }}/discopedia:${{ github.ref_name }}
       #       ```
 
       # Step 8: Clean up Docker resources

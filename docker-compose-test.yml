@@ -30,8 +30,8 @@ services:
       - SHOW_SQL=false
       - SERVER_PORT=8080 # Sets the server port inside container
       - DB_URL=jdbc:mysql://test-db:3306/test # Database connection URL using service name
-      - DB_USERNAME=usertest # Database username
-      - DB_PASSWORD=app123 # Database password
+      - DB_USERNAME=root # Database username
+      - DB_PASSWORD=root # Database password
 
     # Restart policy - never restart (single-run test container)
     restart: no
@@ -61,10 +61,10 @@ services:
 
     # MySQL environment variables for database initialization
     environment:
-      MYSQL_DATABASE: app # Creates database named 'app'
-      MYSQL_USER: userapp # Creates user 'app'
-      MYSQL_PASSWORD: app123 # Sets password for 'app' user
-      MYSQL_ROOT_PASSWORD: root123 # Sets root user password
+      MYSQL_DATABASE: discopedia # Creates database named 'app'
+      MYSQL_USER: root # Creates user 'app'
+      MYSQL_PASSWORD: root # Sets password for 'app' user
+      MYSQL_ROOT_PASSWORD: root # Sets root user password
 
     # Restart policy - never restart (single-run test container)
     # No external port mapping - database only accessible from within the network

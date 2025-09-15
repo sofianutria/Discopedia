@@ -4,13 +4,13 @@ spring:
       enabled: ALWAYS
   application:
     name: discopedia
-  config:
-    import: optional:file:.env[.properties]
+#  config:
+#    import: optional:file:.env[.properties]
 
   # Database Configuration
   datasource:
     url: ${DB_URL}
-    username: ${DB_USER}
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 

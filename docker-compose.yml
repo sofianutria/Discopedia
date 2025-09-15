@@ -1,31 +1,34 @@
 services:
-  murmuration-app:
+  discopedia-app:
     build:
       context: .
       dockerfile: Dockerfile
 
-    container_name: discopedia-springboot
+    container_name: discopedia
 
     ports:
       - "8081:8080"
 
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8080
-      - DB_URL=jdbc:mysql://discopedia-db:3306/discopedia
-      - DB_USERNAME=discopedia
-      - DB_PASSWORD=discopedia123
-      - jwt.secret.key=${JWT_SECRET_KEY}
-      - JWT_EXPIRATION_TIME=1800000
+      SERVER_PORT: "8080"
+      DB_URL: "jdbc:mysql://discopedia-db:3306/discopedia?createDatabaseIfNotExist=true"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "root"
+      SPRING_PROFILES_ACTIVE: docker
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_USERNAME: "admin"
+      ADMIN_PASSWORD: "password1234"
+      JWT_SECRET_KEY: "${JWT_SECRET_KEY:-default_secret_key_for_development}"
+      JWT_EXPIRATION_TIME: "1800000"
 
     restart: unless-stopped
 
     depends_on:
-      murmuration-db:
+      discopedia-db:
         condition: service_healthy
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -34,7 +37,7 @@ services:
     networks:
       - discopedia-network
 
-  murmuration-db:
+  discopedia-db:
     image: mysql:8.0
 
     container_name: discopedia-db
@@ -54,16 +57,7 @@ services:
     restart: unless-stopped
 
     healthcheck:
-      test: [
-        "CMD",
-        "mysqladmin",
-        "ping",
-        "-h",
-        "localhost",
-        "-u",
-        "discopedia",
-        "-discopedia123",
-      ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -73,7 +67,7 @@ services:
       - discopedia-network
 
 networks:
-  murmuration-network:
+  discopedia-network:
     driver: bridge
 
 volumes:
