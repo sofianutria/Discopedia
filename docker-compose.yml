@@ -1,78 +1,80 @@
 services:
-  # Test service using custom Dockerfile
-  discopedia-test:
-    # Build configuration for custom test image
+  murmuration-app:
     build:
-      context: . # Build context is current directory
-      dockerfile: Dockerfile # Use custom test Dockerfile
+      context: .
+      dockerfile: Dockerfile
 
-    # Custom container name for easier identification
-    container_name: discopedia-test
+    container_name: discopedia-springboot
 
-    # Environment variables passed to the SpringBoot application
+    ports:
+      - "8081:8080"
+
     environment:
-      - SPRING_PROFILES_ACTIVE=docker # Activates Docker-specific configuration profile
-      - SERVER_PORT=8080 # Sets the server port inside container
-      - DB_URL=jdbc:mysql://discopedia-test-db:3306/discopedia
-      # Database connection URL using service name
-      - DB_USERNAME=discopedia # Database username
-      - DB_PASSWORD=discopedia # Database password
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8080
+      - DB_URL=jdbc:mysql://discopedia-db:3306/discopedia
+      - DB_USERNAME=discopedia
+      - DB_PASSWORD=discopedia123
+      - jwt.secret.key=${JWT_SECRET_KEY}
+      - JWT_EXPIRATION_TIME=1800000
 
-    # Restart policy - never restart (single-run test container)
-    restart: no
+    restart: unless-stopped
 
-    # Service dependencies - ensures database is healthy before starting app
     depends_on:
-      discopedia-test-db:
-        condition: service_healthy # Wait for DB health check to pass
+      murmuration-db:
+        condition: service_healthy
 
-    # Health check configuration for the SpringBoot application
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"] # Health check command
-      interval: 30s # Check every 30 seconds
-      timeout: 10s # Timeout after 10 seconds
-      retries: 3 # Retry 3 times before marking as unhealthy
-      start_period: 60s # Wait 60 seconds before starting health checks
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
-    # Connect to custom network
     networks:
       - discopedia-network
 
-  # MySQL database service for testing
-  discopedia-test-db:
-    # Use official MySQL 8.0 image from Docker Hub
+  murmuration-db:
     image: mysql:8.0
 
-    # Custom container name for easier identification
-    container_name: discopedia-test-db
+    container_name: discopedia-db
 
-    # MySQL environment variables for database initialization
     environment:
-      MYSQL_DATABASE: discopedia # Creates database named 'discopedia'
-      MYSQL_USER: discopedia # Creates user 'discopedia'
-      MYSQL_PASSWORD: discopedia # Sets password for 'discopedia' user
-      MYSQL_ROOT_PASSWORD: root # Sets root user password
+      MYSQL_DATABASE: discopedia
+      MYSQL_USER: discopedia
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
 
+    ports:
+      - "3307:3306"
 
-    # Restart policy - never restart (single-run test container)
-    # No external port mapping - database only accessible from within the network
-    restart: no
+    volumes:
+      - mysql_data:/var/lib/mysql
 
-    # Health check configuration for MySQL database
+    restart: unless-stopped
+
     healthcheck:
       test: [
-        "CMD", "curl", "-f", "http://localhost:8080/health"
+        "CMD",
+        "mysqladmin",
+        "ping",
+        "-h",
+        "localhost",
+        "-u",
+        "discopedia",
+        "-discopedia123",
       ]
-      interval: 10s # Check every 10 seconds
-      timeout: 5s # Timeout after 5 seconds
-      retries: 5 # Retry 5 times before marking as unhealthy
-      start_period: 30s # Wait 30 seconds before starting health checks
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-    # Connect to custom network
     networks:
       - discopedia-network
 
-# Network configuration
 networks:
-  discopedia-network:
-    driver: bridge # Use bridge driver for container-to-container communication
+  murmuration-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
