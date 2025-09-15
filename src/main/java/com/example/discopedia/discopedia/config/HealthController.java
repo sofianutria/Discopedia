@@ -39,7 +39,6 @@ public class HealthController {
         if ("DOWN".equals(response.get("status"))) {
             return ResponseEntity.status(503).body(response);
         }
-
         return ResponseEntity.ok(response);
     }
 }
