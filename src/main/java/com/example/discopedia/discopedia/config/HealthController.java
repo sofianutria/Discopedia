@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.HashMap;
@@ -22,7 +21,7 @@ public class HealthController {
     public ResponseEntity<Map<String, Object>> health() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "UP");
-        response.put("application", "DreamRoute");
+        response.put("application", "murmuration");
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection.isValid(5)) {
