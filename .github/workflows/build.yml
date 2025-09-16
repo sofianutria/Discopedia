@@ -44,7 +44,7 @@ jobs:
           path: target/*.jar
           retention-days: 1
 
-      # 👇 Paso nuevo para crear un builder que soporte la caché GHA
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
