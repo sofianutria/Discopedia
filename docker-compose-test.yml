@@ -3,35 +3,24 @@ services:
     image: maven:3.9.11-eclipse-temurin-21
     working_dir: /src
     volumes:
-      - type: bind
-        source: .
-        target: /src
-        read_only: true
-    entrypoint: ["mvn", "-Ptest", "clean", "verify", "--no-transfer-progress"]
-    container_name: test
+      - .:/src:ro
+    entrypoint: ["mvn", "clean", "verify", "-Ptest", "--no-transfer-progress"]
     environment:
-      - SHOW_SQL=false
-      - SERVER_PORT=8080
-      - DB_URL=jdbc:mysql://test-db:3306/test
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
-    restart: "no"
+      DB_URL: jdbc:mysql://test-db:3306/discopedia
+      DB_USERNAME: root
+      DB_PASSWORD: root
     depends_on:
       test-db:
         condition: service_started
 
   test-db:
     image: mysql:8.0
-    container_name: db
     environment:
       MYSQL_DATABASE: discopedia
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
-    restart: "no"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 10s
-      timeout: 5s
       retries: 5
-      start_period: 30s
