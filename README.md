@@ -15,19 +15,20 @@ With Discopedia, music enthusiasts gain the ability to:
 📈 Trace Activities – Full logging and validation ensure consistency and transparency.
 
 # 📑 Table of Contents
-# 📑 Table of Contents
-- [Features](#features-✨)
-- [Technologies Used](#technologies-used-👩🏻‍💻)
-- [Prerequisites](#prerequisites-⚙️)
-- [Installation](#installation-🚀)
-- [Configuration](#configuration-🔧)
-- [Usage](#usage-▶️)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Dockerhub](#docker-hub)
+- [Configuration](#configuration)
+- [Usage](#usage)
 - [Endpoints](#endpoints)
-- [Dependencies](#dependencies-📦)
-- [Testing](#testing-🧪)
-- [Contributors](#contributors-👥)
+- [Dependencies](#dependencies)
+- [Testing](#testing)
+- [Contributors](#contributors)
 
-## Features ✨
+## Features
 
 Discopedia provides a powerful set of features:
 
@@ -43,7 +44,7 @@ Discopedia provides a powerful set of features:
 
 🧪 Tests covering core functionality (~70% coverage).
 
-## Technologies Used 👩🏻‍💻
+## Technologies Used
 
 - Java 17+
 - Spring Boot (Web, Data JPA, Security, Mail)
@@ -51,7 +52,7 @@ Discopedia provides a powerful set of features:
 - MySQL
 - Git & GitHub
 
-## Prerequisites ⚙️
+## Prerequisites
 
 Before you start, ensure you have installed:
 
@@ -60,7 +61,7 @@ Before you start, ensure you have installed:
 - MySQL (running locally)
 - IDE like IntelliJ IDEA or VS Code (optional)
 
-## Installation 🚀
+## Installation
 
 1. Clone the repository:
 ```
@@ -88,10 +89,45 @@ spring.jpa.hibernate.ddl-auto=update
 ```
 docker compose up -d
 ```
+## CI/CD Pipeline
+This project uses GitHub Actions to implement a complete CI/CD pipeline with three main stages:
+Implemented Workflows
+### 1. Build
+File: .github/workflows/build.yml
 
-The API will be available at http://localhost:8080.
+Trigger: Push to any branch
 
-## Configuration 🔧
+Function: Compiles the project and verifies there are no compilation errors
+
+### 2. Test
+
+File: .github/workflows/test.yml
+
+Trigger: Push to main and Pull Requests
+
+Function: Executes all unit and integration tests
+
+### 3. Release
+
+File: .github/workflows/release.yml
+
+Trigger: Push to main branch
+
+Function: Builds Docker image and publishes it to Docker Hub
+
+Registry: Docker Hub (sofianutria/discopedia)
+
+## Docker Hub
+Repository: sofianutria/discopedia
+
+Images are automatically tagged with:
+
+- latest: Latest stable version
+- main: Latest version from main branch
+- sha-XXXXXXX: Specific commit hash
+
+
+## Configuration
 
 Key configurations are in src/main/resources/application.properties:
 
@@ -99,7 +135,7 @@ Key configurations are in src/main/resources/application.properties:
 - JWT Security – Secret key for signing tokens (change for production).
 - Email Service – Optional settings for notifications.
 
-## Usage ▶️
+## Usage
 
 Discopedia is a RESTful API. You can use Postman, cURL, or any HTTP client to interact with it.
 
@@ -128,7 +164,7 @@ Authentication: JWT is planned; endpoints may require roles for access.
 
 - - GET /reviews/{musicRecordId} – Get all reviews for a specific music record
 
-## Dependencies 📦
+## Dependencies
 
 - spring-boot-starter-web – REST API with Spring MVC
 
@@ -146,7 +182,7 @@ Authentication: JWT is planned; endpoints may require roles for access.
 
 - springdoc-openapi-starter-webmvc-ui – API documentation via Swagger
 
-## Testing 🧪
+## Testing
 
 The project includes unit and integration tests covering core functionalities (~70% coverage).
 
@@ -154,7 +190,7 @@ Run all tests with:
 ```
 ./mvnw test
 ```
-## Contributors 👥
+## Contributors
 
 This project is the result of passion for music and coding.
 
