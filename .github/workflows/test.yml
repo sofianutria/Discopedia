@@ -1,6 +1,8 @@
 name: Test
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -17,11 +19,20 @@ jobs:
 
       - name: Run tests with docker-compose
         run: |
+          echo "Executing testing"
           docker compose -f docker-compose-test.yml up \
             --quiet-pull \
             --abort-on-container-exit \
             --exit-code-from test
 
+      - name: Show test results
+        if: always()
+        run: |
+          echo "Logs from testing"
+          docker compose -f docker-compose-test.yml logs test
+
       - name: Clean up
         if: always()
-        run: docker compose -f docker-compose-test.yml down -v
+        run: |
+          echo "Clean containers"
+          docker compose -f docker-compose-test.yml down -v
